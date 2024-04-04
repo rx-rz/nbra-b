@@ -130,16 +130,14 @@ export default function Page({ params: { id } }: Params) {
               ref={proseMirrorRef}
               dangerouslySetInnerHTML={{ __html: blog.content }}
             ></div>
-            <div className="max-w-[63ch] mx-auto">
-              <Dialog>
-                <DialogTrigger>
-                  <Button>Reply</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <p>Hello</p>
-                </DialogContent>
-              </Dialog>
-            </div>
+            <Dialog>
+              <DialogTrigger>
+                <button className="text-9xl">Reply</button>
+              </DialogTrigger>
+              <DialogContent>
+                <p>Hello</p>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </>

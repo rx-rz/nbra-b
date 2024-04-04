@@ -28,14 +28,14 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { TitleEditor } from "./title-editor";
 import { TagsEditor } from "./tags-editor";
 import { useBlogStore } from "@/app/store/blog_store";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { addDoc, collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import moment from "moment";
 import { toast } from "sonner";
 import { Toaster } from "./ui/sonner";
 import Typography from "@tiptap/extension-typography";
 import CharacterCount from "@tiptap/extension-character-count";
-import { Loader2, UploadCloud } from "lucide-react";
+import { Loader2, RotateCw, UploadCloud } from "lucide-react";
 import { useGetDraft } from "@/lib/get-draft";
 import { useSearchParams } from "next/navigation";
 // import History from "@tiptap/extension-history";
@@ -309,325 +309,375 @@ const Editor = ({ draft_id }: { draft_id: string | null }) => {
   };
 
   return (
-    <div className="relative">
-      <>
-        <Toaster />
-      </>
-      <div className="flex relative mb-16 ml-3 top-1 right-3 ">
-        <div className="absolute top-3 right-3 flex">
-          <button
-            className="cursor-pointer bg-white border text-sm  rounded-md p-1 px-3"
-            onClick={() => handleDraft()}
-          >
-            {draftLoading ? (
-              <Loader2 size={20} className="animate-spin mx-auto" />
-            ) : (
-              "Save as draft"
-            )}
-          </button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <button className="cursor-pointer bg-black text-white border-black w-24 border text-sm rounded-md p-1 px-3 ml-4">
-                {publishLoading ? (
-                  <Loader2 size={20} className="animate-spin mx-auto" />
-                ) : (
-                  "Publish"
-                )}
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Publish blog?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. Please ensure you go through
-                  your blog post for any necessary corrections to be made.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => publishBlog()}>
-                  Continue
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+    <Suspense
+      fallback={
+        <div className="w-fit mx-auto mt-4">
+          <RotateCw className="animate-spin" />
         </div>
-      </div>
-      <>
-        {editor && (
-          <BubbleMenu
-            className="bubble-menu flex gap-1 flex-wrap"
-            tippyOptions={{ duration: 100 }}
-            editor={editor}
-          >
+      }
+    >
+      <div className="relative">
+        <>
+          <Toaster />
+        </>
+        <div className="flex relative mb-16 ml-3 top-1 right-3 ">
+          <div className="absolute top-3 right-3 flex">
             <button
-              onClick={() => editor.chain().focus().setParagraph().run()}
-              className={editor.isActive("paragraph") ? isActive : isNotActive}
+              className="cursor-pointer bg-white border text-sm  rounded-md p-1 px-3"
+              onClick={() => handleDraft()}
             >
-              <Image
-                width={15}
-                height={15}
-                src={"/paragraph.svg"}
-                alt="Paragraph"
-                className="w-[15px] h-[15px] object-cover"
-              />
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleBold().run()}
-              className={editor.isActive("bold") ? isActive : isNotActive}
-            >
-              <Image width={15} height={15} src={"/bold.svg"} alt="Bold" />
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={editor.isActive("italic") ? isActive : isNotActive}
-            >
-              <Image width={15} height={15} src={"/italic.svg"} alt="Italic" />
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              className={
-                editor.isActive("orderedList") ? isActive : isNotActive
-              }
-            >
-              <Image
-                width={15}
-                height={15}
-                src={"/orderedlist.svg"}
-                alt="Ordered List"
-              />
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleBulletList().run()}
-              className={editor.isActive("bulletList") ? isActive : isNotActive}
-            >
-              <Image
-                width={15}
-                height={15}
-                src={"/bulletlist.svg"}
-                alt="Bullet List"
-              />
-            </button>
-            <button
-              onClick={() =>
-                editor.chain().focus().toggleHeading({ level: 1 }).run()
-              }
-              className={
-                editor.isActive("heading", { level: 1 })
-                  ? isActive
-                  : isNotActive
-              }
-            >
-              <Image width={15} height={15} src={"/h1.svg"} alt="Heading One" />
-            </button>
-            <button
-              onClick={() =>
-                editor.chain().focus().toggleHeading({ level: 2 }).run()
-              }
-              className={
-                editor.isActive("heading", { level: 2 })
-                  ? isActive
-                  : isNotActive
-              }
-            >
-              <Image width={15} height={15} src={"/h2.svg"} alt="Heading Two" />
-            </button>
-            <button
-              onClick={() =>
-                editor.chain().focus().toggleHeading({ level: 3 }).run()
-              }
-              className={
-                editor.isActive("heading", { level: 3 })
-                  ? isActive
-                  : isNotActive
-              }
-            >
-              <Image
-                width={15}
-                height={15}
-                src={"/h3.svg"}
-                alt="Heading Three"
-              />
-            </button>
-          </BubbleMenu>
-        )}
-        {editor && (
-          <FloatingMenu
-            className="bubble-menu flex gap-1 flex-wrap"
-            tippyOptions={{ duration: 100 }}
-            editor={editor}
-          >
-            <button
-              onClick={() => editor.chain().focus().setParagraph().run()}
-              className={editor.isActive("paragraph") ? isActive : isNotActive}
-            >
-              <Image
-                width={15}
-                height={15}
-                src={"/paragraph.svg"}
-                alt="Paragraph"
-              />
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleBold().run()}
-              className={editor.isActive("bold") ? isActive : isNotActive}
-            >
-              <Image width={15} height={15} src={"/bold.svg"} alt="Bold" />
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={editor.isActive("italic") ? isActive : isNotActive}
-            >
-              <Image width={15} height={15} src={"/italic.svg"} alt="Italic" />
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              className={
-                editor.isActive("orderedList") ? isActive : isNotActive
-              }
-            >
-              <Image
-                width={15}
-                height={15}
-                src={"/orderedlist.svg"}
-                alt="Ordered List"
-              />
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleBulletList().run()}
-              className={editor.isActive("bulletList") ? isActive : isNotActive}
-            >
-              <Image
-                width={15}
-                height={15}
-                src={"/bulletlist.svg"}
-                alt="Bullet List"
-              />
-            </button>
-            <button
-              onClick={() =>
-                editor.chain().focus().toggleHeading({ level: 1 }).run()
-              }
-              className={
-                editor.isActive("heading", { level: 1 })
-                  ? isActive
-                  : isNotActive
-              }
-            >
-              <Image width={15} height={15} src={"/h1.svg"} alt="Heading One" />
-            </button>
-            <button
-              onClick={() =>
-                editor.chain().focus().toggleHeading({ level: 2 }).run()
-              }
-              className={
-                editor.isActive("heading", { level: 2 })
-                  ? isActive
-                  : isNotActive
-              }
-            >
-              <Image width={15} height={15} src={"/h2.svg"} alt="Heading Two" />
-            </button>
-            <button
-              onClick={() =>
-                editor.chain().focus().toggleHeading({ level: 3 }).run()
-              }
-              className={
-                editor.isActive("heading", { level: 3 })
-                  ? isActive
-                  : isNotActive
-              }
-            >
-              <Image
-                width={15}
-                height={15}
-                src={"/h3.svg"}
-                alt="Heading Three"
-              />
-            </button>
-            <button type="button" onClick={imageUpload} className={isNotActive}>
-              <Image
-                width={15}
-                height={15}
-                src={"/image.svg"}
-                alt="Upload Image"
-              />
-            </button>
-          </FloatingMenu>
-        )}
-        <button
-          className="cursor-pointer font-bold text-sm text-opacity-70"
-          onClick={() => uploadHeaderImage()}
-        >
-          {blog?.header_image ? (
-            <div className="relative max-h-[600px] border-2 w-screen h-full">
-              {headerUploadPercentage > 0 ? (
-                <p className="absolute text-3xl font-bold top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                  {headerUploadPercentage} %
-                </p>
+              {draftLoading ? (
+                <Loader2 size={20} className="animate-spin mx-auto" />
               ) : (
-                <></>
+                "Save as draft"
               )}
-
-              <Image
-                src={blog.header_image}
-                alt="Header Image"
-                width={1000}
-                height={500}
-                className="object-cover w-full max-h-[600px]"
-              />
-            </div>
-          ) : (
-            <div className="w-screen h-[600px] font-switzer  border-dotted border-2 flex items-center justify-center text-opacity-65">
-              {headerUploadPercentage > 0 ? (
-                <p className="absolute text-3xl font-bold top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                  {headerUploadPercentage} %
-                </p>
-              ) : (
-                <div className="flex flex-col gap-4">
-                  <UploadCloud size={200} />
-                  <p className="opacity-75">Please upload an image.</p>
-                </div>
-              )}
-            </div>
-          )}
-        </button>
-        <div className="mx-4">
-          <TitleEditor
-            blog={blog}
-            setStoredBlog={setStoredBlog}
-            storedBlog={storedBlog}
-            setBlog={setBlog}
-          />
-          <TagsEditor
-            blog={blog}
-            setStoredBlog={setStoredBlog}
-            storedBlog={storedBlog}
-            setBlog={setBlog}
-          />
-          <div className="max-w-[66ch] mx-auto">
-            <EditorContent
-              editor={editor}
-              className="focus:outline-none  focus:border-none  mb-2 text-justify"
-            />
-            <div className="flex gap-4 text-right justify-end text-xs mb-4 sticky bottom-2">
-              <p>
-                <span className="font-bold">
-                  {editor?.storage.characterCount.characters()}
-                </span>{" "}
-                characters
-              </p>
-              <p>
-                <span className="font-bold">
-                  {editor?.storage.characterCount.words()}
-                </span>{" "}
-                words
-              </p>
-            </div>
+            </button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button className="cursor-pointer bg-black text-white border-black w-24 border text-sm rounded-md p-1 px-3 ml-4">
+                  {publishLoading ? (
+                    <Loader2 size={20} className="animate-spin mx-auto" />
+                  ) : (
+                    "Publish"
+                  )}
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Publish blog?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. Please ensure you go through
+                    your blog post for any necessary corrections to be made.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => publishBlog()}>
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
-      </>
-    </div>
+        <>
+          {editor && (
+            <BubbleMenu
+              className="bubble-menu flex gap-1 flex-wrap"
+              tippyOptions={{ duration: 100 }}
+              editor={editor}
+            >
+              <button
+                onClick={() => editor.chain().focus().setParagraph().run()}
+                className={
+                  editor.isActive("paragraph") ? isActive : isNotActive
+                }
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/paragraph.svg"}
+                  alt="Paragraph"
+                  className="w-[15px] h-[15px] object-cover"
+                />
+              </button>
+              <button
+                onClick={() => editor.chain().focus().toggleBold().run()}
+                className={editor.isActive("bold") ? isActive : isNotActive}
+              >
+                <Image width={15} height={15} src={"/bold.svg"} alt="Bold" />
+              </button>
+              <button
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+                className={editor.isActive("italic") ? isActive : isNotActive}
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/italic.svg"}
+                  alt="Italic"
+                />
+              </button>
+              <button
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                className={
+                  editor.isActive("orderedList") ? isActive : isNotActive
+                }
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/orderedlist.svg"}
+                  alt="Ordered List"
+                />
+              </button>
+              <button
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+                className={
+                  editor.isActive("bulletList") ? isActive : isNotActive
+                }
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/bulletlist.svg"}
+                  alt="Bullet List"
+                />
+              </button>
+              <button
+                onClick={() =>
+                  editor.chain().focus().toggleHeading({ level: 1 }).run()
+                }
+                className={
+                  editor.isActive("heading", { level: 1 })
+                    ? isActive
+                    : isNotActive
+                }
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/h1.svg"}
+                  alt="Heading One"
+                />
+              </button>
+              <button
+                onClick={() =>
+                  editor.chain().focus().toggleHeading({ level: 2 }).run()
+                }
+                className={
+                  editor.isActive("heading", { level: 2 })
+                    ? isActive
+                    : isNotActive
+                }
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/h2.svg"}
+                  alt="Heading Two"
+                />
+              </button>
+              <button
+                onClick={() =>
+                  editor.chain().focus().toggleHeading({ level: 3 }).run()
+                }
+                className={
+                  editor.isActive("heading", { level: 3 })
+                    ? isActive
+                    : isNotActive
+                }
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/h3.svg"}
+                  alt="Heading Three"
+                />
+              </button>
+            </BubbleMenu>
+          )}
+          {editor && (
+            <FloatingMenu
+              className="bubble-menu flex gap-1 flex-wrap"
+              tippyOptions={{ duration: 100 }}
+              editor={editor}
+            >
+              <button
+                onClick={() => editor.chain().focus().setParagraph().run()}
+                className={
+                  editor.isActive("paragraph") ? isActive : isNotActive
+                }
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/paragraph.svg"}
+                  alt="Paragraph"
+                />
+              </button>
+              <button
+                onClick={() => editor.chain().focus().toggleBold().run()}
+                className={editor.isActive("bold") ? isActive : isNotActive}
+              >
+                <Image width={15} height={15} src={"/bold.svg"} alt="Bold" />
+              </button>
+              <button
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+                className={editor.isActive("italic") ? isActive : isNotActive}
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/italic.svg"}
+                  alt="Italic"
+                />
+              </button>
+              <button
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                className={
+                  editor.isActive("orderedList") ? isActive : isNotActive
+                }
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/orderedlist.svg"}
+                  alt="Ordered List"
+                />
+              </button>
+              <button
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+                className={
+                  editor.isActive("bulletList") ? isActive : isNotActive
+                }
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/bulletlist.svg"}
+                  alt="Bullet List"
+                />
+              </button>
+              <button
+                onClick={() =>
+                  editor.chain().focus().toggleHeading({ level: 1 }).run()
+                }
+                className={
+                  editor.isActive("heading", { level: 1 })
+                    ? isActive
+                    : isNotActive
+                }
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/h1.svg"}
+                  alt="Heading One"
+                />
+              </button>
+              <button
+                onClick={() =>
+                  editor.chain().focus().toggleHeading({ level: 2 }).run()
+                }
+                className={
+                  editor.isActive("heading", { level: 2 })
+                    ? isActive
+                    : isNotActive
+                }
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/h2.svg"}
+                  alt="Heading Two"
+                />
+              </button>
+              <button
+                onClick={() =>
+                  editor.chain().focus().toggleHeading({ level: 3 }).run()
+                }
+                className={
+                  editor.isActive("heading", { level: 3 })
+                    ? isActive
+                    : isNotActive
+                }
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/h3.svg"}
+                  alt="Heading Three"
+                />
+              </button>
+              <button
+                type="button"
+                onClick={imageUpload}
+                className={isNotActive}
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/image.svg"}
+                  alt="Upload Image"
+                />
+              </button>
+            </FloatingMenu>
+          )}
+          <button
+            className="cursor-pointer font-bold text-sm text-opacity-70"
+            onClick={() => uploadHeaderImage()}
+          >
+            {blog?.header_image ? (
+              <div className="relative max-h-[600px] border-2 w-screen h-full">
+                {headerUploadPercentage > 0 ? (
+                  <p className="absolute text-3xl font-bold top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    {headerUploadPercentage} %
+                  </p>
+                ) : (
+                  <></>
+                )}
+
+                <Image
+                  src={blog.header_image}
+                  alt="Header Image"
+                  width={1000}
+                  height={500}
+                  className="object-cover w-full max-h-[600px]"
+                />
+              </div>
+            ) : (
+              <div className="w-screen h-[600px] font-switzer  border-dotted border-2 flex items-center justify-center text-opacity-65">
+                {headerUploadPercentage > 0 ? (
+                  <p className="absolute text-3xl font-bold top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    {headerUploadPercentage} %
+                  </p>
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    <UploadCloud size={200} />
+                    <p className="opacity-75">Please upload an image.</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </button>
+          <div className="mx-4">
+            <TitleEditor
+              blog={blog}
+              setStoredBlog={setStoredBlog}
+              storedBlog={storedBlog}
+              setBlog={setBlog}
+            />
+            <TagsEditor
+              blog={blog}
+              setStoredBlog={setStoredBlog}
+              storedBlog={storedBlog}
+              setBlog={setBlog}
+            />
+            <div className="max-w-[66ch] mx-auto">
+              <EditorContent
+                editor={editor}
+                className="focus:outline-none  focus:border-none  mb-2 text-justify"
+              />
+              <div className="flex gap-4 text-right justify-end text-xs mb-4 sticky bottom-2">
+                <p>
+                  <span className="font-bold">
+                    {editor?.storage.characterCount.characters()}
+                  </span>{" "}
+                  characters
+                </p>
+                <p>
+                  <span className="font-bold">
+                    {editor?.storage.characterCount.words()}
+                  </span>{" "}
+                  words
+                </p>
+              </div>
+            </div>
+          </div>
+        </>
+      </div>
+    </Suspense>
   );
 };
 

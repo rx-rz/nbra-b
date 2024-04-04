@@ -1,10 +1,9 @@
 "use client";
 import { useSearchParams } from "next/navigation";
 import Editor from "../components/editor";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useBlogStore } from "../store/blog_store";
-import Link from "next/link";
-import { BookMinus, Home, SearchIcon } from "lucide-react";
+import { BookMinus, Home, RotateCw, SearchIcon } from "lucide-react";
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -16,9 +15,17 @@ export default function Page() {
       setDraftID("");
     }
   }, [draftId, setDraftID]);
+
   return (
-    <div>
-      {/* <header className="flex justify-between mt-3 mx-3 text-xs border-b pb-2">
+    <Suspense
+      fallback={
+        <div className="w-fit mx-auto mt-4">
+          <RotateCw className="animate-spin" />
+        </div>
+      }
+    >
+      <div>
+        {/* <header className="flex justify-between mt-3 mx-3 text-xs border-b pb-2">
         <Link
           href={"/"}
           className="font-bold flex gap-1 items-center font-gambarino"
@@ -38,7 +45,8 @@ export default function Page() {
           </Link>
         </div>
       </header> */}
-      <Editor draft_id={draftId} />
-    </div>
+        <Editor draft_id={draftId} />
+      </div>
+    </Suspense>
   );
 }

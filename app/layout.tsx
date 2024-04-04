@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import Link from "next/link";
+import { BookMinus, Home, SearchIcon } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,7 +15,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className="border-4 md:border-green-500 border-yellow-500 lg:border-purple-500 xl:border-sky-500">
+        <>{children}</>
+      </body>
     </html>
   );
 }

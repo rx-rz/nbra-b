@@ -9,7 +9,7 @@ export default function Page() {
   const { drafts } = useGetDrafts();
   return (
     <div>
-      <header className="flex justify-between mt-3 mx-3 text-xs border-b pb-2">
+      {/* <header className="flex justify-between mt-3 mx-3 text-xs border-b pb-2">
         <Link
           href={"/"}
           className="font-bold flex gap-1 items-center font-gambarino"
@@ -28,7 +28,7 @@ export default function Page() {
             <SearchIcon />
           </Link>
         </div>
-      </header>
+      </header> */}
       <main className="grid grid-cols-3 gap-x-4 gap-y-3 mt-4 p-3">
         {drafts &&
           drafts.map((draft) => (

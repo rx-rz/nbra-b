@@ -18,7 +18,7 @@ export default function Page() {
   }, [draftId, setDraftID]);
   return (
     <div>
-      <header className="flex justify-between mt-3 mx-3 text-xs border-b pb-2">
+      {/* <header className="flex justify-between mt-3 mx-3 text-xs border-b pb-2">
         <Link
           href={"/"}
           className="font-bold flex gap-1 items-center font-gambarino"
@@ -37,7 +37,7 @@ export default function Page() {
             <SearchIcon />
           </Link>
         </div>
-      </header>
+      </header> */}
       <Editor draft_id={draftId} />
     </div>
   );

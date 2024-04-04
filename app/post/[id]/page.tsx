@@ -1,8 +1,11 @@
 "use client";
 import { Progress } from "@/app/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
 import { database } from "@/config/firebase-config";
+import { DialogContent, DialogTrigger } from "@radix-ui/react-dialog";
 import { doc, getDoc } from "firebase/firestore";
-import { BookMinus, Home, SearchIcon } from "lucide-react";
+import { BookMinus, Home, RotateCw, SearchIcon } from "lucide-react";
 import moment from "moment";
 import Image from "next/image";
 import Link from "next/link";
@@ -64,7 +67,7 @@ export default function Page({ params: { id } }: Params) {
   if (blog) {
     return (
       <>
-        <header className="flex justify-between mt-3 mx-3 text-xs border-b pb-2">
+        {/* <header className="flex justify-between mt-3 mx-3 text-xs border-b pb-2">
           <Link
             href={"/"}
             className="font-bold flex gap-1 items-center font-gambarino"
@@ -83,7 +86,7 @@ export default function Page({ params: { id } }: Params) {
               <SearchIcon />
             </Link>
           </div>
-        </header>
+        </header> */}
         <Image
           src={blog.header_image}
           alt="Header Image"
@@ -121,16 +124,32 @@ export default function Page({ params: { id } }: Params) {
           <div className="sticky top-0  bg-white">
             <Progress value={progress} />
           </div>
-          <div className="w-full flex pt-10 justify-center text-justify font-switzer">
+          <div className="w-full  pt-10 justify-center text-justify font-switzer">
             <div
-              className="mx-4 mt-10 w-fit font-switzer ProseMirror max-w-[66ch] "
+              className=" mt-10 w-fit mx-auto font-switzer ProseMirror max-w-[66ch] "
               ref={proseMirrorRef}
               dangerouslySetInnerHTML={{ __html: blog.content }}
             ></div>
+            <div className="max-w-[63ch] mx-auto">
+              <Dialog>
+                <DialogTrigger>
+                  <Button>Reply</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <p>Hello</p>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
       </>
     );
   }
-  return <></>;
+  return (
+    <>
+      <div className="w-fit mx-auto mt-4">
+        <RotateCw className="animate-spin" />
+      </div>
+    </>
+  );
 }

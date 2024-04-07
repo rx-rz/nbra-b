@@ -58,7 +58,7 @@ export default function Home() {
         <>
           <div className=" h-full rounded-md p-3">
             {blogs[0] ? (
-              <>
+              <div className="md:block hidden">
                 <Image
                   alt={blogs[0].title}
                   className="w-full h-[600px] object-cover mt-8"
@@ -100,7 +100,7 @@ export default function Home() {
                     </Link>
                   </div>
                 </div>
-              </>
+              </div>
             ) : (
               <></>
             )}

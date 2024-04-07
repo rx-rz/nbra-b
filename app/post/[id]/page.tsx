@@ -1,14 +1,19 @@
 "use client";
 import { Progress } from "@/app/components/ui/progress";
-import { Button } from "@/components/ui/button";
-import { Dialog } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { database } from "@/config/firebase-config";
-import { DialogContent, DialogTrigger } from "@radix-ui/react-dialog";
-import { doc, getDoc } from "firebase/firestore";
-import { BookMinus, Home, RotateCw, SearchIcon } from "lucide-react";
+import { useGetComments } from "@/lib/get-comments";
+
+import { addDoc, collection, doc, getDoc } from "firebase/firestore";
+import { RotateCw } from "lucide-react";
 import moment from "moment";
 import Image from "next/image";
-import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 
 type Params = {
@@ -20,6 +25,8 @@ type Params = {
 export default function Page({ params: { id } }: Params) {
   const [blog, setBlog] = useState<BlogContent>();
   const proseMirrorRef = useRef<HTMLDivElement | null>(null);
+  const [comment, setComment] = useState("");
+  const [name, setName] = useState("");
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -43,6 +50,16 @@ export default function Page({ params: { id } }: Params) {
     };
   }, []);
 
+  async function handleSubmitComment() {
+    await addDoc(collection(database, "comments"), {
+      comment,
+      name,
+      postId: id,
+      date_created: moment.now(),
+    }).then((value) => {
+      console.log(value.id);
+    });
+  }
   useEffect(() => {
     async function getBlog() {
       const blogRef = doc(database, "blogs", id ?? "0");
@@ -63,7 +80,7 @@ export default function Page({ params: { id } }: Params) {
     }
     getBlog();
   }, [id]);
-
+  const { comments, commentLoading } = useGetComments({ blogId: id });
   if (blog) {
     return (
       <>
@@ -124,18 +141,59 @@ export default function Page({ params: { id } }: Params) {
           <div className="sticky top-0  bg-white">
             <Progress value={progress} />
           </div>
-          <div className="w-full  pt-10 justify-center text-justify font-switzer">
+          <div className="w-[95%]  pt-10  max-w-[66ch]  mx-auto font-switzer">
             <div
-              className=" mt-10 w-fit mx-auto font-switzer ProseMirror max-w-[66ch] "
+              className=" mt-10 w-fit  text-justify font-switzer ProseMirror "
               ref={proseMirrorRef}
               dangerouslySetInnerHTML={{ __html: blog.content }}
             ></div>
+            {comments ? (
+              comments.map((comment) => (
+                <div key={comment.id} className="py-5 border-b last-of-type:border-none">
+                  <div className="flex gap-2 items-center">
+                    <p className="text-sm font-bold opacity-90">
+                      {comment.name}
+                    </p>
+                    <p className="text-xs font-bold opacity-75">{moment(comment.date_created).fromNow()}</p>
+                  </div>
+                  <p className="mt-1"> {comment.comment}</p>
+                </div>
+              ))
+            ) : (
+              <></>
+            )}
             <Dialog>
               <DialogTrigger>
-                <button className="text-9xl">Reply</button>
+                <p className="cursor-pointer bg-black text-white mb-3 border text-sm  rounded-md p-1 px-3">
+                  Comment
+                </p>
               </DialogTrigger>
               <DialogContent>
-                <p>Hello</p>
+                <form action="">
+                  <input
+                    type="text"
+                    className="w-full p-3 mt-6 border rounded-sm"
+                    placeholder="Enter your name (not compulsory)"
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                  <textarea
+                    className="resize-none mt-2 w-full border rounded-sm focus:border-black p-3"
+                    rows={6}
+                    placeholder="Enter your comment"
+                    onChange={(e) => setComment(e.target.value)}
+                  />
+                  <DialogClose
+                    asChild
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleSubmitComment();
+                    }}
+                  >
+                    <p className="cursor-pointer bg-black text-white mb-3 border text-sm  rounded-md p-1 px-3">
+                      Save changes
+                    </p>
+                  </DialogClose>
+                </form>
               </DialogContent>
             </Dialog>
           </div>

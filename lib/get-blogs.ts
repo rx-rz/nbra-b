@@ -5,7 +5,7 @@ import { database } from "../config/firebase-config";
 export const useGetBlogs = () => {
   const [blogs, setBlogs] = useState<BlogContent[]>([]);
   const [blogLoading, setBlogLoading] = useState(false);
-console.log({blogs})
+  console.log({ blogs });
   useEffect(() => {
     setBlogLoading(true);
     async function getAllDocs() {
@@ -24,7 +24,7 @@ console.log({blogs})
           subtitle: doc.data().subtitle,
           tags: doc.data().tags,
           title: doc.data().title,
-          id: doc.id
+          id: doc.id,
         });
       });
       blogs.sort((a, b) => (a.date_created < b.date_created ? 1 : -1));

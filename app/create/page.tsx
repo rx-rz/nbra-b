@@ -25,26 +25,6 @@ export default function Page() {
       }
     >
       <div>
-        {/* <header className="flex justify-between mt-3 mx-3 text-xs border-b pb-2">
-        <Link
-          href={"/"}
-          className="font-bold flex gap-1 items-center font-gambarino"
-        >
-          <Home fill="#000" stroke="#fff" />
-          <div className="leading-3">
-            <p>roqeebatu</p>
-            <p>abeni</p>
-          </div>
-        </Link>
-        <div className="flex gap-4">
-          <Link href={"/drafts"}>
-            <BookMinus />
-          </Link>
-          <Link href={"/search"}>
-            <SearchIcon />
-          </Link>
-        </div>
-      </header> */}
         <Editor draft_id={draftId} />
       </div>
     </Suspense>

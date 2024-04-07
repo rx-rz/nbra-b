@@ -1,5 +1,15 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { database } from "@/config/firebase-config";
 import { useGetDrafts } from "@/lib/get-drafts";
+import { deleteDoc, doc } from "firebase/firestore";
 import { BookMinus, Home, RotateCw, SearchIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,6 +17,10 @@ import React, { Suspense } from "react";
 
 export default function Page() {
   const { drafts } = useGetDrafts();
+  const handleDeleteDraft = async (draftId: string) => {
+    await deleteDoc(doc(database, "blogs", draftId));
+    location.reload();
+  };
   return (
     <Suspense
       fallback={
@@ -62,12 +76,40 @@ export default function Page() {
                   <p className="text-sm text-opacity-75 mb-3">
                     {draft.subtitle}
                   </p>
-                  <Link
-                    href={`/create?draft_id=${draft.id}`}
-                    className="bg-black text-white px-3 py-2 text-xs rounded-3xl"
-                  >
-                    Edit Draft
-                  </Link>
+                  <div className="flex gap-2">
+                    <Link
+                      href={`/create?draft_id=${draft.id}`}
+                      className="bg-black text-white px-3 py-2 text-xs rounded-3xl"
+                    >
+                      Edit Draft
+                    </Link>
+                    <Dialog>
+                      <DialogTrigger>
+                        <button className="bg-red-500 text-white px-3 py-2 text-xs rounded-3xl">
+                          Delete Draft
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogTitle className="mt-3">
+                          Are you absolutely sure?
+                        </DialogTitle>
+                        <DialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete your draft and remove your data from our
+                          servers.
+                        </DialogDescription>
+                        <Button
+                          variant="secondary"
+                          className="bg-red-500 text-white mt-8"
+                          onClick={() =>
+                            handleDeleteDraft(draft.id ? draft.id : "")
+                          }
+                        >
+                          Yes, delete
+                        </Button>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
                 <Image
                   alt={draft.title}

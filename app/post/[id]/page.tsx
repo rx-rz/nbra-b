@@ -1,5 +1,6 @@
 "use client";
 import { Progress } from "@/app/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -28,6 +29,7 @@ export default function Page({ params: { id } }: Params) {
   const [comment, setComment] = useState("");
   const [name, setName] = useState("");
   const [progress, setProgress] = useState(0);
+  const [open, setOpen] = useState(true);
 
   useEffect(() => {
     const scrollHandler = () => {
@@ -60,6 +62,7 @@ export default function Page({ params: { id } }: Params) {
       console.log(value.id);
     });
   }
+
   useEffect(() => {
     async function getBlog() {
       const blogRef = doc(database, "blogs", id ?? "0");
@@ -80,30 +83,11 @@ export default function Page({ params: { id } }: Params) {
     }
     getBlog();
   }, [id]);
+
   const { comments, commentLoading } = useGetComments({ blogId: id });
   if (blog) {
     return (
       <>
-        {/* <header className="flex justify-between mt-3 mx-3 text-xs border-b pb-2">
-          <Link
-            href={"/"}
-            className="font-bold flex gap-1 items-center font-gambarino"
-          >
-            <Home fill="#000" stroke="#fff" />
-            <div className="leading-3">
-              <p>roqeebatu</p>
-              <p>abeni</p>
-            </div>
-          </Link>
-          <div className="flex gap-4">
-            <Link href={"/drafts"}>
-              <BookMinus />
-            </Link>
-            <Link href={"/search"}>
-              <SearchIcon />
-            </Link>
-          </div>
-        </header> */}
         <Image
           src={blog.header_image}
           alt="Header Image"
@@ -149,12 +133,17 @@ export default function Page({ params: { id } }: Params) {
             ></div>
             {comments ? (
               comments.map((comment) => (
-                <div key={comment.id} className="py-5 border-b last-of-type:border-none">
+                <div
+                  key={comment.id}
+                  className="py-5 border-b last-of-type:border-none"
+                >
                   <div className="flex gap-2 items-center">
                     <p className="text-sm font-bold opacity-90">
                       {comment.name}
                     </p>
-                    <p className="text-xs font-bold opacity-75">{moment(comment.date_created).fromNow()}</p>
+                    <p className="text-xs font-bold opacity-75">
+                      {moment(comment.date_created).fromNow()}
+                    </p>
                   </div>
                   <p className="mt-1"> {comment.comment}</p>
                 </div>
@@ -186,12 +175,14 @@ export default function Page({ params: { id } }: Params) {
                     asChild
                     onClick={(e) => {
                       e.preventDefault();
-                      handleSubmitComment();
                     }}
                   >
-                    <p className="cursor-pointer bg-black text-white mb-3 border text-sm  rounded-md p-1 px-3">
-                      Save changes
-                    </p>
+                    <Button
+                      variant={"outline"}
+                      className="cursor-pointer bg-black text-white  mb-3 border text-sm  rounded-md p-1 px-3"
+                    >
+                      Comment
+                    </Button>
                   </DialogClose>
                 </form>
               </DialogContent>

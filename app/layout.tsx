@@ -37,6 +37,7 @@ export default function RootLayout({
             <Dialog>
               <DialogTrigger title="Search">
                 <SearchIcon />
+
               </DialogTrigger>
               <DialogContent className="max-h-[700px] h-[100%] w-[95%] md:w-[80%] max-w-[1000px] overflow-y-scroll">
                 <Search blogs={blogs} />

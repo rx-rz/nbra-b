@@ -22,6 +22,9 @@ const config = {
         gambarino: ["Gambarino", "serif"],
         switzer: ["Switzer", "sans-serif"],
       },
+      colors: {
+        accent: "#222",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },

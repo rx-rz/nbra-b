@@ -2,8 +2,10 @@
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
@@ -30,27 +32,7 @@ export default function Page() {
       }
     >
       <div>
-        {/* <header className="flex justify-between mt-3 mx-3 text-xs border-b pb-2">
-        <Link
-          href={"/"}
-          className="font-bold flex gap-1 items-center font-gambarino"
-        >
-          <Home fill="#000" stroke="#fff" />
-          <div className="leading-3">
-            <p>roqeebatu</p>
-            <p>abeni</p>
-          </div>
-        </Link>
-        <div className="flex gap-4">
-          <Link href={"/drafts"}>
-            <BookMinus />
-          </Link>
-          <Link href={"/search"}>
-            <SearchIcon />
-          </Link>
-        </div>
-      </header> */}
-        <main className="grid grid-cols-3 gap-x-4 gap-y-3 mt-4 p-3">
+        <main className="grid lg:grid-cols-2 grid-cols-1 xl:grid-cols-3 gap-x-4 gap-y-3 p-3">
           {drafts &&
             drafts.map((draft) => (
               <div
@@ -98,15 +80,20 @@ export default function Page() {
                           delete your draft and remove your data from our
                           servers.
                         </DialogDescription>
-                        <Button
-                          variant="secondary"
-                          className="bg-red-500 text-white mt-8"
-                          onClick={() =>
-                            handleDeleteDraft(draft.id ? draft.id : "")
-                          }
-                        >
-                          Yes, delete
-                        </Button>
+                        <DialogFooter className="flex justify-between mt-8">
+                          <DialogClose asChild className="mt-2 md:mt-0">
+                            <Button variant="outline">Cancel</Button>
+                          </DialogClose>
+                          <Button
+                            variant="secondary"
+                            className="bg-red-500 text-white"
+                            onClick={() =>
+                              handleDeleteDraft(draft.id ? draft.id : "")
+                            }
+                          >
+                            Yes, delete
+                          </Button>
+                        </DialogFooter>
                       </DialogContent>
                     </Dialog>
                   </div>

@@ -21,11 +21,11 @@ export const TagsEditor = ({ blog, setBlog }: CreateBlogComponentProps) => {
   };
 
   return (
-    <div className="flex mx-auto mt-2 md:mt-0 w-fit mb-3">
+    <div className="flex flex-wrap gap-3 mx-auto mt-2 md:mt-0 w-fit mb-3">
       {Array.from({ length: noOfTags }).map((_, index) => (
         <div
           key={index + 1}
-          className="border-black px-3 flex focus:outline-none rounded-sm text-sm border border-dotted mr-2"
+          className="border-black min-w-[165px] px-3 flex focus:outline-none rounded-sm text-sm border  mr-2"
         >
           <input
             className="focus:outline-none w-full p-1 font-medium"

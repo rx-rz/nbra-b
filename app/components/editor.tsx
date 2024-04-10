@@ -85,7 +85,6 @@ const Editor = ({ draft_id }: { draft_id: string | null }) => {
       Bold,
       TiptapImage,
       Typography,
-      // History,
       CharacterCount,
       Heading.configure({
         levels: [1, 2, 3],
@@ -97,7 +96,6 @@ const Editor = ({ draft_id }: { draft_id: string | null }) => {
     content: blog ? blog.content : "",
     onBlur: ({ editor }) => {
       setStoredBlog({ ...storedBlog, content: editor.getHTML() });
-      setBlog({ ...storedBlog, content: editor.getHTML() });
       handleDraft();
     },
   });
@@ -112,13 +110,13 @@ const Editor = ({ draft_id }: { draft_id: string | null }) => {
 
   useEffect(() => {
     setBlog(storedBlog);
-    editor?.commands.setContent(storedBlog.content);
+    // editor?.commands.setContent(storedBlog.content);
   }, [storedBlog, editor]);
 
   const isActive =
-    "bg-black [&>img]:invert rounded-full border border-black p-2 md:w-[30px] h-[30px] w-[20px] h-[20px] flex items-center justify-center";
+    "bg-black [&>img]:invert rounded-full border border-black p-2 md:w-[30px] md:h-[30px] w-fit h-fit flex items-center justify-center";
   const isNotActive =
-    "bg-white  rounded-full border-black border md:w-[30px] p-2 h-[30px] w-[20px] h-[20px] flex items-center justify-center";
+    "bg-white  rounded-full border-black border md:w-[30px] p-2 md:h-[30px] w-fit h-fit flex items-center justify-center";
 
   const imageUpload = () => {
     const input = document.createElement("input");
@@ -131,17 +129,6 @@ const Editor = ({ draft_id }: { draft_id: string | null }) => {
       const formData = new FormData();
       formData.append("image", file);
 
-      // Get the current editor position before inserting placeholder
-      const currentPosition = editor?.state.selection.anchor;
-
-      editor
-        ?.chain()
-        .focus()
-        .insertContentAt(
-          currentPosition!,
-          '<img src="https://placehold.co/600?text=Loading&font=roboto" class="placeholderimage"/>'
-        )
-        .run();
       const storageRef = ref(storage, `/images/${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
       uploadTask.on(
@@ -158,7 +145,6 @@ const Editor = ({ draft_id }: { draft_id: string | null }) => {
               // Restore the editor position before replacing the image
               editor
                 ?.chain()
-                .focus(currentPosition)
                 .setImage({
                   src: downloadUrl,
                   alt: file.name,
@@ -229,7 +215,6 @@ const Editor = ({ draft_id }: { draft_id: string | null }) => {
         title: "",
       });
       setDraftID("");
-      searchParams.delete();
       location.reload();
     }
   };
@@ -320,8 +305,8 @@ const Editor = ({ draft_id }: { draft_id: string | null }) => {
         <>
           <Toaster />
         </>
-        <div className="flex relative mb-16 ml-3 top-1 right-3 ">
-          <div className="absolute top-3 right-3 flex">
+        <div className="flex relative mb-16 ml-3 top-1 right-1 md:right-3 ">
+          <div className="absolute top-3 md:right-3 right-0 flex">
             <button
               className="cursor-pointer bg-white border text-sm  rounded-md p-1 px-3"
               onClick={() => handleDraft()}
@@ -351,8 +336,13 @@ const Editor = ({ draft_id }: { draft_id: string | null }) => {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => publishBlog()}>
+                  <AlertDialogCancel className="bg-red-500 text-white hover:bg-red-500">
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    className="-black border"
+                    onClick={() => publishBlog()}
+                  >
                     Continue
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -605,11 +595,11 @@ const Editor = ({ draft_id }: { draft_id: string | null }) => {
             </FloatingMenu>
           )}
           <button
-            className="cursor-pointer font-bold text-sm text-opacity-70"
+            className="cursor-pointer font-bold text-sm w-full text-opacity-70"
             onClick={() => uploadHeaderImage()}
           >
             {blog?.header_image ? (
-              <div className="relative max-h-[600px] border-2 w-screen h-full">
+              <div className="relative max-h-[600px] border-2  h-full">
                 {headerUploadPercentage > 0 ? (
                   <p className="absolute text-3xl font-bold top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                     {headerUploadPercentage} %

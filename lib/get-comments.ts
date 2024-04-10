@@ -12,7 +12,6 @@ type Comment = {
 export const useGetComments = ({ blogId }: { blogId: string }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentLoading, setCommentLoading] = useState(false);
-  console.log({ comments });
   useEffect(() => {
     setCommentLoading(true);
     async function getAllDocs() {

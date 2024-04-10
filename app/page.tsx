@@ -5,6 +5,9 @@ import {
   BookMinus,
   HomeIcon,
   LucideBook,
+  LucideLinkedin,
+  LucideTwitch,
+  LucideTwitter,
   Rotate3D,
   RotateCw,
   SearchIcon,
@@ -26,42 +29,14 @@ export default function Home() {
 
   return (
     <main className="p-3">
-      {/* <header className="flex justify-between mt-3 mx-3 text-xs border-b pb-2">
-        <Link
-          href={"/"}
-          className="font-bold flex gap-1 items-center font-gambarino"
-        >
-          <HomeIcon fill="#000" stroke="#fff" />
-          <div className="leading-3">
-            <p>roqeebatu</p>
-            <p>abeni</p>
-          </div>
-        </Link>
-        <div className="flex gap-4">
-          <Link href={"/create"} title="Create Blog">
-            <LucideBook />
-          </Link>
-          <Link href={"/drafts"} title="Drafts">
-            <BookMinus />
-          </Link>
-          <Dialog>
-            <DialogTrigger title="Search">
-              <SearchIcon />
-            </DialogTrigger>
-            <DialogContent className="max-h-[700px] h-[100%] w-[95%] md:w-[80%] max-w-[1000px] overflow-y-scroll">
-              <Search blogs={blogs} />
-            </DialogContent>
-          </Dialog>
-        </div>
-      </header> */}
       {blogs && blogs.length > 0 ? (
         <>
-          <div className=" h-full rounded-md p-3">
+          <div className=" h-full rounded-md md:p-3  mb-4 border-accent">
             {blogs[0] ? (
               <div className="md:block hidden">
                 <Image
                   alt={blogs[0].title}
-                  className="w-full h-[600px] object-cover mt-8"
+                  className="w-full h-[600px] object-cover mt-8 border-2 border-accent"
                   width={1000}
                   height={500}
                   src={blogs[0].header_image}
@@ -73,7 +48,7 @@ export default function Home() {
                       {blogs[0].tags.map((tag) => (
                         <Dialog key={tag}>
                           <DialogTrigger>
-                            <button className="mx-1  text-xs hover:underline underline-offset-2 cursor-pointer">
+                            <button className="mx-1  text-xs hover:underline decoration-accent underline-offset-2 cursor-pointer">
                               {tag}
                             </button>
                           </DialogTrigger>
@@ -84,7 +59,7 @@ export default function Home() {
                       ))}
                       ]
                     </div>
-                    <p className="xl:text-5xl text-3xl lg:text-4xl  font-bold mt-1 font-gambarino">
+                    <p className="xl:text-5xl text-3xl lg:text-4xl text-accent font-bold mt-1 font-gambarino">
                       {blogs[0].title}
                     </p>
                   </div>
@@ -94,7 +69,7 @@ export default function Home() {
                     </p>
                     <Link
                       href={`/post/${blogs[0].id}`}
-                      className="bg-black text-white px-3 py-2 lg:text-md text-sm mt-3 rounded-3xl "
+                      className="bg-accent text-white px-3 py-2 lg:text-md text-sm mt-3 rounded-3xl "
                     >
                       Read Blog
                     </Link>
@@ -110,7 +85,7 @@ export default function Home() {
               blogs.map((blog) => (
                 <div
                   key={blog.id}
-                  className="mb- flex flex-col justify-between border rounded-md p-5"
+                  className="mb- flex flex-col justify-between border border-accent rounded-md p-5"
                 >
                   <div>
                     <div>
@@ -129,7 +104,7 @@ export default function Home() {
                       ))}
                       ]
                     </div>
-                    <p className="text-2xl mt-1 mb-1 font-gambarino font-bold">
+                    <p className="text-2xl mt-1 mb-1 font-gambarino text-accent font-bold">
                       {blog.title}
                     </p>
                     <p className="text-sm text-opacity-75 mb-3">
@@ -137,7 +112,7 @@ export default function Home() {
                     </p>
                     <Link
                       href={`/post/${blog.id}`}
-                      className="bg-black text-white px-3 py-2 text-xs rounded-3xl"
+                      className="bg-accent text-white px-3 py-2 text-xs rounded-3xl"
                     >
                       Read Blog
                     </Link>
@@ -151,6 +126,17 @@ export default function Home() {
                   />
                 </div>
               ))}
+            <div className="border flex flex-col p-5 bg-accent rounded-md">
+              <p className="font-gambarino text-4xl text-white">
+                Hi!. I&apos;m Roqeebat Bolarinwa.
+                <br /> Wanna Connect? <br />
+                Reach me through my social media handles:
+              </p>
+              <div className="md:mt-auto mt-16 flex gap-6 ">
+                <LucideLinkedin stroke="#fff" />
+                <LucideTwitter stroke="#fff" />
+              </div>
+            </div>
           </main>
         </>
       ) : (

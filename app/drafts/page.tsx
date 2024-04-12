@@ -12,7 +12,7 @@ import {
 import { database } from "@/config/firebase-config";
 import { useGetDrafts } from "@/lib/get-drafts";
 import { deleteDoc, doc } from "firebase/firestore";
-import { BookMinus, Home, RotateCw, SearchIcon } from "lucide-react";
+import { LucideAnnoyed, RotateCw } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { Suspense } from "react";
@@ -32,9 +32,9 @@ export default function Page() {
       }
     >
       <div>
-        <main className="grid lg:grid-cols-2 grid-cols-1 xl:grid-cols-3 gap-x-4 gap-y-3 p-3">
-          {drafts &&
-            drafts.map((draft) => (
+        {drafts && drafts.length > 0 ? (
+          <main className="grid lg:grid-cols-2 grid-cols-1 xl:grid-cols-3 gap-x-4 gap-y-3 p-3">
+            {drafts.map((draft) => (
               <div
                 key={draft.id}
                 className="mb- flex flex-col justify-between border rounded-md p-5"
@@ -107,7 +107,15 @@ export default function Page() {
                 />
               </div>
             ))}
-        </main>
+          </main>
+        ) : (
+          <>
+            <div className="w-fit mx-auto  mt-8">
+              <LucideAnnoyed size={40} className="mx-auto" />
+              <p className="mt-4">No drafts currently.</p>
+            </div>
+          </>
+        )}
       </div>
     </Suspense>
   );

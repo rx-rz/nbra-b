@@ -30,6 +30,8 @@ export default function Page({ params: { id } }: Params) {
   const [name, setName] = useState("");
   const [progress, setProgress] = useState(0);
   const [open, setOpen] = useState(true);
+  const [commentSubmissionLoading, setCommentSubmissionLoading] =
+    useState(false);
 
   useEffect(() => {
     const scrollHandler = () => {
@@ -53,13 +55,15 @@ export default function Page({ params: { id } }: Params) {
   }, []);
 
   async function handleSubmitComment() {
+    setCommentSubmissionLoading(true);
     await addDoc(collection(database, "comments"), {
       comment,
       name,
       postId: id,
       date_created: moment.now(),
-    }).then((value) => {
-      console.log(value.id);
+    }).then(() => {
+      setCommentSubmissionLoading(false);
+      location.reload();
     });
   }
 
@@ -131,6 +135,7 @@ export default function Page({ params: { id } }: Params) {
               ref={proseMirrorRef}
               dangerouslySetInnerHTML={{ __html: blog.content }}
             ></div>
+            <h1 className="text-2xl font-bold">Comments</h1>
             {comments ? (
               comments.map((comment) => (
                 <div
@@ -141,7 +146,7 @@ export default function Page({ params: { id } }: Params) {
                     <p className="text-sm font-bold opacity-90">
                       {comment.name}
                     </p>
-                    <p className="text-xs font-bold opacity-75">
+                    <p className="text-xs opacity-75">
                       {moment(comment.date_created).fromNow()}
                     </p>
                   </div>
@@ -151,42 +156,34 @@ export default function Page({ params: { id } }: Params) {
             ) : (
               <></>
             )}
-            <Dialog>
-              <DialogTrigger>
-                <p className="cursor-pointer bg-black text-white mb-3 border text-sm  rounded-md p-1 px-3">
-                  Comment
-                </p>
-              </DialogTrigger>
-              <DialogContent>
-                <form action="">
-                  <input
-                    type="text"
-                    className="w-full p-3 mt-6 border rounded-sm"
-                    placeholder="Enter your name (not compulsory)"
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                  <textarea
-                    className="resize-none mt-2 w-full border rounded-sm focus:border-black p-3"
-                    rows={6}
-                    placeholder="Enter your comment"
-                    onChange={(e) => setComment(e.target.value)}
-                  />
-                  <DialogClose
-                    asChild
-                    onClick={(e) => {
-                      e.preventDefault();
-                    }}
-                  >
-                    <Button
-                      variant={"outline"}
-                      className="cursor-pointer bg-black text-white  mb-3 border text-sm  rounded-md p-1 px-3"
-                    >
-                      Comment
-                    </Button>
-                  </DialogClose>
-                </form>
-              </DialogContent>
-            </Dialog>
+            <form action="">
+              <input
+                type="text"
+                className="w-full p-3 mt-6 border rounded-sm"
+                placeholder="Enter your name (not compulsory)"
+                onChange={(e) => setName(e.target.value)}
+              />
+              <textarea
+                className="resize-none mt-2 w-full border rounded-sm focus:border-black p-3"
+                rows={6}
+                placeholder="Enter your comment"
+                onChange={(e) => setComment(e.target.value)}
+              />
+              <Button
+                variant={"outline"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSubmitComment();
+                }}
+                className="cursor-pointer bg-black text-white  mb-3 border text-sm  rounded-md p-1 px-3"
+              >
+                {commentLoading ? (
+                  <RotateCw className="animate-spin" />
+                ) : (
+                  "Comment"
+                )}
+              </Button>
+            </form>
           </div>
         </div>
       </>

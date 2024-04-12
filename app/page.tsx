@@ -5,6 +5,7 @@ import {
   BookMinus,
   HomeIcon,
   LucideBook,
+  LucideInstagram,
   LucideLinkedin,
   LucideTwitch,
   LucideTwitter,
@@ -126,15 +127,27 @@ export default function Home() {
                   />
                 </div>
               ))}
-            <div className="border flex flex-col p-5 bg-accent rounded-md">
-              <p className="font-gambarino text-4xl text-white">
-                Hi!. I&apos;m Roqeebat Bolarinwa.
-                <br /> Wanna Connect? <br />
-                Reach me through my social media handles:
+            <div className="border flex flex-col p-5 bg-accent rounded-md min-h-96">
+              <p className="font-gambarino text-4xl text-white leading-snug">
+                Hello! <br />
+                I am Roqeebat Bolarinwa.
+                <br /> Interested in connecting? <br />
+                Reach out to me via my social media channels:
               </p>
               <div className="md:mt-auto mt-16 flex gap-6 ">
-                <LucideLinkedin stroke="#fff" />
-                <LucideTwitter stroke="#fff" />
+                <Link href={"https://www.linkedin.com/in/roqeebatbolarinwa"}>
+                  <LucideLinkedin stroke="#fff" />
+                </Link>
+                <Link href={"https://x.com/rtbolarinwa"}>
+                  <LucideTwitter stroke="#fff" />
+                </Link>
+                <Link
+                  href={
+                    "https://www.instagram.com/roqeebatbolarinwa?igsh=MWFpOThkOTBodW5vOQ%3D%3D&utm_source=qr"
+                  }
+                >
+                  <LucideInstagram stroke="#fff" />
+                </Link>
               </div>
             </div>
           </main>

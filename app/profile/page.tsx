@@ -43,7 +43,7 @@ export default function Page() {
                 </Button>
               </DialogTrigger>
               <DialogContent>
-                <Card className="mt-4">
+                <Card className="mt-4 ">
                   <CardContent className="mt-5">
                     {subscribers ? (
                       subscribers.map((subscriber) => (
@@ -70,7 +70,7 @@ export default function Page() {
               </p>
             </div>
 
-            <div className="right-0 bottom-0 absolute -z-20 overflow-y-clip">
+            <div className="right-0 bottom-0 absolute -z-20 overflow-clip max-h-[150px]">
               {subscribers ? (
                 subscribers.map((subscriber) => (
                   <div key={subscriber.email}>

@@ -1,7 +1,4 @@
 "use client";
-
-import Bold from "@tiptap/extension-bold";
-import Heading from "@tiptap/extension-heading";
 import { Image as TiptapImage } from "@tiptap/extension-image";
 import { database, storage } from "@/config/firebase-config";
 import {
@@ -24,7 +21,6 @@ import {
 import StarterKit from "@tiptap/starter-kit";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import Image from "next/image";
-import Placeholder from "@tiptap/extension-placeholder";
 import { TitleEditor } from "./title-editor";
 import { TagsEditor } from "./tags-editor";
 import { useBlogStore } from "@/app/store/blog_store";
@@ -33,13 +29,10 @@ import { addDoc, collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import moment from "moment";
 import { toast } from "sonner";
 import { Toaster } from "./ui/sonner";
-import Typography from "@tiptap/extension-typography";
 import CharacterCount from "@tiptap/extension-character-count";
 import { Loader2, RotateCw, UploadCloud } from "lucide-react";
 import { useGetDraft } from "@/lib/get-draft";
 import { useRouter, useSearchParams } from "next/navigation";
-// import History from "@tiptap/extension-history";
-// import { Button } from "@/components/ui/button";
 
 const Editor = () => {
   const searchParams = useSearchParams();
@@ -156,61 +149,67 @@ const Editor = () => {
 
   const publishBlog = async () => {
     setPublishLoading(true);
-    const isError = validateBlogContent(storedBlog);
-    if (isError === "") {
-      if (draftID) {
-        if (blog) {
+    const isValid = validateBlogContent(storedBlog);
+
+    if (isValid) {
+      try {
+        if (draftID) {
           const blogRef = doc(database, "blogs", draftID);
-          const blogDoc = await getDoc(blogRef);
-          if (blogDoc.exists() && blog) {
-            await updateDoc(blogRef, {
-              content: editor?.getHTML(),
-              date_created: moment.now().toString(),
-              header_image: blog.header_image,
-              is_draft: false,
-              subtitle: blog.subtitle,
-              tags: blog.tags,
-              title: blog.title,
-            });
-          }
+          await updateDoc(blogRef, {
+            content: editor?.getHTML(),
+            date_created: moment.now().toString(),
+            header_image: storedBlog.header_image,
+            is_draft: false,
+            subtitle: storedBlog.subtitle,
+            tags: storedBlog.tags,
+            title: storedBlog.title,
+          });
+        } else {
+          await addDoc(collection(database, "blogs"), {
+            content: editor?.getHTML(),
+            author: "Roqeebat Bolarinwa",
+            date_created: moment.now().toString(),
+            header_image: storedBlog.header_image,
+            is_draft: false,
+            subtitle: storedBlog.subtitle,
+            tags: storedBlog.tags,
+            title: storedBlog.title,
+          });
         }
-      } else if (blog) {
-        await addDoc(collection(database, "blogs"), {
-          content: editor?.getHTML(),
+
+        setBlog({
+          content: "",
           author: "Roqeebat Bolarinwa",
           date_created: moment.now().toString(),
-          header_image: blog.header_image,
-          is_draft: false,
-          subtitle: blog.subtitle,
-          tags: blog.tags,
-          title: blog.title,
+          header_image: "",
+          is_draft: true,
+          subtitle: "",
+          tags: [],
+          title: "",
         });
+        setStoredBlog({
+          content: "",
+          author: "Roqeebat Bolarinwa",
+          date_created: moment.now().toString(),
+          header_image: "",
+          is_draft: true,
+          subtitle: "",
+          tags: [],
+          title: "",
+        });
+        setDraftID("");
+        const url = new URL(location.href);
+        url.searchParams.delete("draft_id");
+        router.push(url.toString());
+        router.push("/");
+      } catch (error) {
+        console.error("Error publishing blog:", error);
+        toast("Error publishing blog. Please try again later.");
+      } finally {
+        setPublishLoading(false);
       }
-      setBlog({
-        content: "",
-        author: "Roqeebat Bolarinwa",
-        date_created: moment.now().toString(),
-        header_image: "",
-        is_draft: true,
-        subtitle: "",
-        tags: [],
-        title: "",
-      });
-      setStoredBlog({
-        content: "",
-        author: "Roqeebat Bolarinwa",
-        date_created: moment.now().toString(),
-        header_image: "",
-        is_draft: true,
-        subtitle: "",
-        tags: [],
-        title: "",
-      });
-      setDraftID("");
-      const url = new URL(location.href);
-      url.searchParams.delete("draft_id");
-      router.push(url.toString());
-      location.reload();
+    } else {
+      setPublishLoading(false);
     }
   };
 
@@ -305,6 +304,7 @@ const Editor = () => {
             <button
               className="cursor-pointer bg-white border text-sm  rounded-md p-1 px-3"
               onClick={() => handleDraft()}
+              disabled={draftLoading || publishLoading}
             >
               {draftLoading ? (
                 <Loader2 size={20} className="animate-spin mx-auto" />
@@ -314,7 +314,10 @@ const Editor = () => {
             </button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <button className="cursor-pointer bg-black text-white border-black w-24 border text-sm rounded-md p-1 px-3 ml-4">
+                <button
+                  className="cursor-pointer bg-black text-white border-black w-24 border text-sm rounded-md p-1 px-3 ml-4"
+                  disabled={draftLoading || publishLoading}
+                >
                   {publishLoading ? (
                     <Loader2 size={20} className="animate-spin mx-auto" />
                   ) : (
@@ -335,7 +338,7 @@ const Editor = () => {
                     Cancel
                   </AlertDialogCancel>
                   <AlertDialogAction
-                    className="-black border"
+                    className="bg-accent text-white"
                     onClick={() => publishBlog()}
                   >
                     Continue

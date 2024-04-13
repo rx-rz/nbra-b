@@ -3,7 +3,6 @@ import { Progress } from "@/app/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogFooter,
   DialogTrigger,
@@ -36,6 +35,7 @@ export default function Page({ params: { id } }: Params) {
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
+
   useEffect(() => {
     const scrollHandler = () => {
       const scrollTop =
@@ -124,7 +124,8 @@ export default function Page({ params: { id } }: Params) {
     setSubscriptionLoading(false);
   };
 
-  const { comments, commentLoading } = useGetComments({ blogId: id });
+  const { comments } = useGetComments({ blogId: id });
+
   if (blog) {
     return (
       <>
@@ -275,6 +276,7 @@ export default function Page({ params: { id } }: Params) {
       </>
     );
   }
+
   return (
     <>
       <div className="w-fit mx-auto mt-4">

@@ -21,10 +21,10 @@ export default function RootLayout({
             href={"/"}
             className="font-bold flex gap-1 items-center font-gambarino"
           >
-            <HomeIcon fill="#000080" stroke="#fff" />
+
             <div className="leading-3">
-              <p>roqeebatu</p>
-              <p>abeni</p>
+              <p>roqeebat</p>
+              <p>bolarinwa</p>
             </div>
           </Link>
           <div className="flex gap-4">

@@ -31,11 +31,11 @@ export default function Page({ params: { id } }: Params) {
   const [comment, setComment] = useState("");
   const [name, setName] = useState("");
   const [progress, setProgress] = useState(0);
-  const [open, setOpen] = useState(true);
   const [commentSubmissionLoading, setCommentSubmissionLoading] =
     useState(false);
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   const [email, setEmail] = useState("");
+  const [isSubscribed, setIsSubscribed] = useState(false);
   useEffect(() => {
     const scrollHandler = () => {
       const scrollTop =
@@ -58,16 +58,18 @@ export default function Page({ params: { id } }: Params) {
   }, []);
 
   async function handleSubmitComment() {
-    setCommentSubmissionLoading(true);
-    await addDoc(collection(database, "comments"), {
-      comment,
-      name,
-      postId: id,
-      date_created: moment.now(),
-    }).then(() => {
-      setCommentSubmissionLoading(false);
-      location.reload();
-    });
+    if (comment) {
+      setCommentSubmissionLoading(true);
+      await addDoc(collection(database, "comments"), {
+        comment,
+        name,
+        postId: id,
+        date_created: moment.now(),
+      }).then(() => {
+        setCommentSubmissionLoading(false);
+        location.reload();
+      });
+    }
   }
 
   useEffect(() => {
@@ -97,7 +99,8 @@ export default function Page({ params: { id } }: Params) {
   };
 
   const addToSubscribersList = async () => {
-    setCommentSubmissionLoading(true);
+    setSubscriptionLoading(true);
+    setIsSubscribed(false);
     if (!validateEmail()) {
       alert("Please enter a valid email address.");
       return;
@@ -106,18 +109,19 @@ export default function Page({ params: { id } }: Params) {
     const docSnap = await getDoc(ref);
 
     if (docSnap.exists()) {
-      // setIsSubscribed(true);
+      setIsSubscribed(true);
       return;
     }
     if (!docSnap.exists()) {
       addDoc(collection(database, "subscribers"), {
         email,
+        date_subscribed: moment.now(),
       }).then(() => {
+        setIsSubscribed(true);
         return;
-        // setIsSubscribed(true);
       });
     }
-    setCommentSubmissionLoading(false);
+    setSubscriptionLoading(false);
   };
 
   const { comments, commentLoading } = useGetComments({ blogId: id });
@@ -170,45 +174,71 @@ export default function Page({ params: { id } }: Params) {
             <div className="w-fit mx-auto">
               <Dialog>
                 <DialogTrigger>
-                  <Button className="mx-auto bg-accent text-white mb-8">
+                  <Button className="mx-auto bg-accent md:text-base text-xs md:p-4 p-2 text-white mb-8">
                     Subscribe to blog
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="">
+                <DialogContent className="max-w-[500px] w-[95%] rounded-md">
                   <DialogDescription className="mt-2">
                     <p className="mb-4">
                       Glad you want to subscribe! Please enter your email in the
                       input box below:
                     </p>
-                    <Input type="email" />
+                    <Input onChange={(e) => setEmail(e.target.value)} />
                   </DialogDescription>
                   <DialogFooter>
-                    <Button>Close</Button>
-                    <DialogClose>
-                      <Button variant={"outline"}>Subscribe</Button>
-                    </DialogClose>
+                    {isSubscribed ? (
+                      <Button
+                        variant={"outline"}
+                        className="w-full bg-accent text-white cursor-pointer"
+                        disabled
+                      >
+                        Subscribed! You can close this dialog.
+                      </Button>
+                    ) : (
+                      <Button
+                        variant={"outline"}
+                        className="w-full bg-accent text-white cursor-pointer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          addToSubscribersList();
+                        }}
+                      >
+                        {subscriptionLoading ? (
+                          <RotateCw size={30} className="animate-spin" />
+                        ) : (
+                          "Subscribe"
+                        )}
+                      </Button>
+                    )}
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
             </div>
-            <h1 className="text-2xl font-bold">Comments</h1>
+
             {comments ? (
-              comments.map((comment) => (
-                <div
-                  key={comment.id}
-                  className="py-5 border-b last-of-type:border-none"
-                >
-                  <div className="flex gap-2 items-center">
-                    <p className="text-sm font-bold opacity-90">
-                      {comment.name}
-                    </p>
-                    <p className="text-xs opacity-75">
-                      {moment(comment.date_created).fromNow()}
+              <>
+                <h1 className="md:text-2xl text-xl font-bold">Comments</h1>
+                {comments.map((comment) => (
+                  <div
+                    key={comment.id}
+                    className="py-5 border-b last-of-type:border-none"
+                  >
+                    <div className="flex gap-2 items-center">
+                      <p className="text-sm font-bold opacity-90">
+                        {comment.name}
+                      </p>
+                      <p className="text-xs opacity-75">
+                        {moment(comment.date_created).fromNow()}
+                      </p>
+                    </div>
+                    <p className="mt-1 md:text-base text-xs">
+                      {" "}
+                      {comment.comment}
                     </p>
                   </div>
-                  <p className="mt-1"> {comment.comment}</p>
-                </div>
-              ))
+                ))}
+              </>
             ) : (
               <></>
             )}
@@ -231,9 +261,9 @@ export default function Page({ params: { id } }: Params) {
                   e.preventDefault();
                   handleSubmitComment();
                 }}
-                className="cursor-pointer bg-black text-white  mb-3 border text-sm  rounded-md p-1 px-3"
+                className="mx-auto bg-accent md:text-base text-xs md:p-4 p-2 text-white mb-8"
               >
-                {commentLoading ? (
+                {commentSubmissionLoading ? (
                   <RotateCw className="animate-spin" />
                 ) : (
                   "Comment"

@@ -86,7 +86,7 @@ export default function Home() {
               blogs.map((blog) => (
                 <div
                   key={blog.id}
-                  className="mb- flex flex-col justify-between border border-accent rounded-md p-5"
+                  className="mb- flex flex-col justify-between border border-accent roundedmd p-5"
                 >
                   <div>
                     <div>
@@ -128,7 +128,7 @@ export default function Home() {
                 </div>
               ))}
             <div className="border flex flex-col p-5 bg-accent rounded-md min-h-96">
-              <p className="font-gambarino text-4xl text-white leading-snug">
+              <p className="font-gambarino text-3xl md:text-4xl text-white leading-snug">
                 Hello! <br />
                 I am Roqeebat Bolarinwa.
                 <br /> Interested in connecting? <br />

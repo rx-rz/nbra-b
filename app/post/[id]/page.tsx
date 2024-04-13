@@ -8,8 +8,10 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { database } from "@/config/firebase-config";
 import { useGetComments } from "@/lib/get-comments";
+import { DialogDescription } from "@radix-ui/react-dialog";
 
 import { addDoc, collection, doc, getDoc } from "firebase/firestore";
 import { RotateCw } from "lucide-react";
@@ -32,7 +34,8 @@ export default function Page({ params: { id } }: Params) {
   const [open, setOpen] = useState(true);
   const [commentSubmissionLoading, setCommentSubmissionLoading] =
     useState(false);
-
+  const [subscriptionLoading, setSubscriptionLoading] = useState(false);
+  const [email, setEmail] = useState("");
   useEffect(() => {
     const scrollHandler = () => {
       const scrollTop =
@@ -88,6 +91,35 @@ export default function Page({ params: { id } }: Params) {
     getBlog();
   }, [id]);
 
+  const validateEmail = () => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email.trim());
+  };
+
+  const addToSubscribersList = async () => {
+    setCommentSubmissionLoading(true);
+    if (!validateEmail()) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+    const ref = doc(database, "subscribers", email);
+    const docSnap = await getDoc(ref);
+
+    if (docSnap.exists()) {
+      // setIsSubscribed(true);
+      return;
+    }
+    if (!docSnap.exists()) {
+      addDoc(collection(database, "subscribers"), {
+        email,
+      }).then(() => {
+        return;
+        // setIsSubscribed(true);
+      });
+    }
+    setCommentSubmissionLoading(false);
+  };
+
   const { comments, commentLoading } = useGetComments({ blogId: id });
   if (blog) {
     return (
@@ -135,6 +167,30 @@ export default function Page({ params: { id } }: Params) {
               ref={proseMirrorRef}
               dangerouslySetInnerHTML={{ __html: blog.content }}
             ></div>
+            <div className="w-fit mx-auto">
+              <Dialog>
+                <DialogTrigger>
+                  <Button className="mx-auto bg-accent text-white mb-8">
+                    Subscribe to blog
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="">
+                  <DialogDescription className="mt-2">
+                    <p className="mb-4">
+                      Glad you want to subscribe! Please enter your email in the
+                      input box below:
+                    </p>
+                    <Input type="email" />
+                  </DialogDescription>
+                  <DialogFooter>
+                    <Button>Close</Button>
+                    <DialogClose>
+                      <Button variant={"outline"}>Subscribe</Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
             <h1 className="text-2xl font-bold">Comments</h1>
             {comments ? (
               comments.map((comment) => (

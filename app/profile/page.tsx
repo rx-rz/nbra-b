@@ -10,7 +10,9 @@ export default function Page() {
     <main>
       <div className="mx-auto  w-fit">
         <Card className="mx-auto max-w-3xl mt-16">
-          <CardHeader className="w-full">Roqeebat Bolarinwa</CardHeader>
+          <CardHeader className="w-full">
+            {user.displayName ? user.displayName : "Roqeebat Bolarinwa"}
+          </CardHeader>
           <CardContent className="flex mx-auto w-fit gap-8">
             <Link href={"/create"} title="Create Blog">
               <LucideBook />

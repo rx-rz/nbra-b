@@ -37,13 +37,15 @@ import Typography from "@tiptap/extension-typography";
 import CharacterCount from "@tiptap/extension-character-count";
 import { Loader2, RotateCw, UploadCloud } from "lucide-react";
 import { useGetDraft } from "@/lib/get-draft";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 // import History from "@tiptap/extension-history";
 // import { Button } from "@/components/ui/button";
 
-const Editor = ({ draft_id }: { draft_id: string | null }) => {
-  const { draft } = useGetDraft({ id: draft_id });
+const Editor = () => {
   const searchParams = useSearchParams();
+  const draft_id = searchParams.get("draft_id");
+  const { draft } = useGetDraft({ id: draft_id });
+
   const {
     blog: storedBlog,
     setBlog: setStoredBlog,
@@ -80,23 +82,14 @@ const Editor = ({ draft_id }: { draft_id: string | null }) => {
   };
 
   const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Bold,
-      TiptapImage,
-      Typography,
-      CharacterCount,
-      Heading.configure({
-        levels: [1, 2, 3],
-      }),
-      Placeholder.configure({
-        placeholder: "Enter content here: ",
-      }),
-    ],
+    extensions: [StarterKit, TiptapImage, CharacterCount],
     content: blog ? blog.content : "",
     onBlur: ({ editor }) => {
       setStoredBlog({ ...storedBlog, content: editor.getHTML() });
       handleDraft();
+    },
+    onCreate: ({ editor }) => {
+      editor?.commands.setContent(storedBlog.content);
     },
   });
 
@@ -110,7 +103,6 @@ const Editor = ({ draft_id }: { draft_id: string | null }) => {
 
   useEffect(() => {
     setBlog(storedBlog);
-    // editor?.commands.setContent(storedBlog.content);
   }, [storedBlog, editor]);
 
   const isActive =
@@ -160,6 +152,8 @@ const Editor = ({ draft_id }: { draft_id: string | null }) => {
     editor?.setEditable(true);
   };
 
+  const router = useRouter();
+
   const publishBlog = async () => {
     setPublishLoading(true);
     const isError = validateBlogContent(storedBlog);
@@ -190,8 +184,6 @@ const Editor = ({ draft_id }: { draft_id: string | null }) => {
           subtitle: blog.subtitle,
           tags: blog.tags,
           title: blog.title,
-        }).then((value) => {
-          setDraftID(value.id);
         });
       }
       setBlog({
@@ -215,6 +207,9 @@ const Editor = ({ draft_id }: { draft_id: string | null }) => {
         title: "",
       });
       setDraftID("");
+      const url = new URL(location.href);
+      url.searchParams.delete("draft_id");
+      router.push(url.toString());
       location.reload();
     }
   };

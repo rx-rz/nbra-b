@@ -1,21 +1,10 @@
 "use client";
-import { useSearchParams } from "next/navigation";
 import Editor from "../components/editor";
-import { Suspense, useEffect } from "react";
-import { useBlogStore } from "../store/blog_store";
-import { BookMinus, Home, RotateCw, SearchIcon } from "lucide-react";
+import { Suspense } from "react";
+
+import { RotateCw } from "lucide-react";
 
 export default function Page() {
-  const searchParams = useSearchParams();
-  const { setDraftID } = useBlogStore();
-  const draftId = searchParams.get("draft_id");
-
-  useEffect(() => {
-    if (!draftId) {
-      setDraftID("");
-    }
-  }, [draftId, setDraftID]);
-
   return (
     <Suspense
       fallback={
@@ -25,7 +14,7 @@ export default function Page() {
       }
     >
       <div>
-        <Editor draft_id={draftId} />
+        <Editor />
       </div>
     </Suspense>
   );

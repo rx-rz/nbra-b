@@ -148,68 +148,54 @@ const Editor = () => {
   const router = useRouter();
 
   const publishBlog = async () => {
-    setPublishLoading(true);
-    const isValid = validateBlogContent(storedBlog);
-
-    if (isValid) {
-      try {
-        if (draftID) {
-          const blogRef = doc(database, "blogs", draftID);
-          await updateDoc(blogRef, {
-            content: editor?.getHTML(),
-            date_created: moment.now().toString(),
-            header_image: storedBlog.header_image,
-            is_draft: false,
-            subtitle: storedBlog.subtitle,
-            tags: storedBlog.tags,
-            title: storedBlog.title,
-          });
-        } else {
-          await addDoc(collection(database, "blogs"), {
-            content: editor?.getHTML(),
-            author: "Roqeebat Bolarinwa",
-            date_created: moment.now().toString(),
-            header_image: storedBlog.header_image,
-            is_draft: false,
-            subtitle: storedBlog.subtitle,
-            tags: storedBlog.tags,
-            title: storedBlog.title,
-          });
-        }
-
-        setBlog({
-          content: "",
-          author: "Roqeebat Bolarinwa",
-          date_created: moment.now().toString(),
-          header_image: "",
-          is_draft: true,
-          subtitle: "",
-          tags: [],
-          title: "",
-        });
-        setStoredBlog({
-          content: "",
-          author: "Roqeebat Bolarinwa",
-          date_created: moment.now().toString(),
-          header_image: "",
-          is_draft: true,
-          subtitle: "",
-          tags: [],
-          title: "",
-        });
-        setDraftID("");
-        const url = new URL(location.href);
-        url.searchParams.delete("draft_id");
-        router.push(url.toString());
-        router.push("/");
-      } catch (error) {
-        console.error("Error publishing blog:", error);
-        toast("Error publishing blog. Please try again later.");
-      } finally {
+    try {
+      const blogRef = doc(database, "blogs", draftID);
+      setPublishLoading(true);
+      const isValid = validateBlogContent(storedBlog);
+      if (isValid.length === 0) {
         setPublishLoading(false);
       }
-    } else {
+      if (draftID.length === 0) {
+        await addDoc(collection(database, "blogs"), {
+          content: editor?.getHTML(),
+          author: "Roqeebat Bolarinwa",
+          date_created: moment.now().toString(),
+          header_image: storedBlog.header_image,
+          is_draft: false,
+          subtitle: storedBlog.subtitle,
+          tags: storedBlog.tags,
+          title: storedBlog.title,
+        });
+      } else {
+        await updateDoc(blogRef, {
+          content: editor?.getHTML(),
+          date_created: moment.now().toString(),
+          header_image: storedBlog.header_image,
+          is_draft: false,
+          subtitle: storedBlog.subtitle,
+          tags: storedBlog.tags,
+          title: storedBlog.title,
+        });
+      }
+      setStoredBlog({
+        content: "",
+        author: "Roqeebat Bolarinwa",
+        date_created: moment.now().toString(),
+        header_image: "",
+        is_draft: true,
+        subtitle: "",
+        tags: [],
+        title: "",
+      });
+      setDraftID("");
+      const url = new URL(location.href);
+      url.searchParams.delete("draft_id");
+      router.push(url.toString());
+      router.push("/");
+    } catch (err) {
       setPublishLoading(false);
+      console.error("Error publishing blog:", err);
+      toast("Error publishing blog. Please try again later.");
     }
   };
 
@@ -387,6 +373,19 @@ const Editor = () => {
                 />
               </button>
               <button
+                onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                className={
+                  editor.isActive("blockquote") ? isActive : isNotActive
+                }
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/blockquote.svg"}
+                  alt="Blockquote"
+                />
+              </button>
+              <button
                 onClick={() => editor.chain().focus().toggleOrderedList().run()}
                 className={
                   editor.isActive("orderedList") ? isActive : isNotActive
@@ -512,6 +511,19 @@ const Editor = () => {
                   height={15}
                   src={"/orderedlist.svg"}
                   alt="Ordered List"
+                />
+              </button>
+              <button
+                onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                className={
+                  editor.isActive("blockquote") ? isActive : isNotActive
+                }
+              >
+                <Image
+                  width={15}
+                  height={15}
+                  src={"/blockquote.svg"}
+                  alt="Blockquote"
                 />
               </button>
               <button

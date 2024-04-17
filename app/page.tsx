@@ -2,34 +2,29 @@
 
 import { useGetBlogs } from "@/lib/get-blogs";
 import {
-  BookMinus,
-  HomeIcon,
-  LucideBook,
+  LucideFileWarning,
   LucideInstagram,
   LucideLinkedin,
-  LucideTwitch,
   LucideTwitter,
-  Rotate3D,
   RotateCw,
-  SearchIcon,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import Search from "./components/search";
 
 export default function Home() {
-  const { blogs } = useGetBlogs();
-
+  const { blogs, blogError } = useGetBlogs();
   return (
     <main className="p-3">
+      {blogError && !blogs && (
+        <>
+          <div className="w-fit mx-auto mt-4 text-center ">
+            <LucideFileWarning className="animate-spin mb-2" />
+            <p>Could not fetch blogs. Please refresh.</p>
+          </div>
+        </>
+      )}
       {blogs && blogs.length > 0 ? (
         <>
           <div className=" h-full rounded-md md:p-3  mb-4 border-accent">

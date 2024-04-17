@@ -22,24 +22,20 @@
 /* For small screen sizes (e.g., mobile) */
 @media screen and (max-width: 640px) {
   .ProseMirror img {
-    padding-block:1rem !important;
+    padding-block: 1rem !important;
   }
   .ProseMirror h1 {
-    font-size: 24px;
+    font-size: 19px;
     font-weight: bold;
     margin-block-start: 1rem;
     margin-block-end: 1rem;
   }
   .ProseMirror h2 {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: bold;
     margin-block: 1rem;
   }
-  .ProseMirror h3 {
-    font-size: 18px;
-    font-weight: bold;
-    margin-block: 1rem;
-  }
+
   .ProseMirror p {
     font-size: 14px;
     margin-block: 1em;
@@ -52,21 +48,17 @@
     padding-block: 0.7rem !important;
   }
   .ProseMirror h1 {
-    font-size: 24px;
+    font-size: 21px;
     font-weight: bold;
     margin-block-start: 1rem;
     margin-block-end: 1rem;
   }
   .ProseMirror h2 {
-    font-size: 22px;
+    font-size: 18px;
     font-weight: bold;
     margin-block: 1rem;
   }
-  .ProseMirror h3 {
-    font-size: 20px;
-    font-weight: bold;
-    margin-block: 1rem;
-  }
+
   .ProseMirror p {
     font-size: 16px;
     margin-block: 1em;
@@ -106,6 +98,18 @@
   font-family: "General Sans", sans-serif;
 }
 
-/* .py-4 {
-  padding: 0rem !important;
-} */
+blockquote {
+  border-left: 3px solid #1a1a1a;
+  color: #333;
+  font-family: "Gambarino", serif;
+  font-size: 1.25rem;
+  font-style: italic;
+  margin: 2rem 0;
+  padding-left: 1.5rem;
+}
+
+blockquote p {
+  font-family: "Gambarino", serif !important;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}

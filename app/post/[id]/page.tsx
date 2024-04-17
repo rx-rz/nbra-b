@@ -166,9 +166,9 @@ export default function Page({ params: { id } }: Params) {
           <div className="sticky top-0  bg-white">
             <Progress value={progress} />
           </div>
-          <div className="w-[95%]  pt-10  max-w-[66ch]  mx-auto font-switzer">
+          <div className="w-[95%]  md:pt-10  max-w-[66ch]  mx-auto font-switzer">
             <div
-              className=" mt-10 w-fit  text-justify font-switzer ProseMirror "
+              className=" md:mt-10 mt-6 w-fit  text- font-switzer ProseMirror "
               ref={proseMirrorRef}
               dangerouslySetInnerHTML={{ __html: blog.content }}
             ></div>

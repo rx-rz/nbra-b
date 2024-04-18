@@ -113,9 +113,18 @@ const Editor = () => {
       const file = input.files![0];
       const formData = new FormData();
       formData.append("image", file);
-
       const storageRef = ref(storage, `/images/${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
+
+      // Get the current editor state
+      const currentChain = editor?.state.selection.anchor;
+
+      // Add a placeholder image before the upload starts
+      editor
+        ?.chain()
+        .insertContent('<img src="https://placehold.co/600x400?text=Loading" class="placeholder"/>')
+        .run();
+
       uploadTask.on(
         "state_changed",
         (snapshot) => {
@@ -127,7 +136,9 @@ const Editor = () => {
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
             if (downloadUrl) {
-              // Restore the editor position before replacing the image
+              editor?.commands.focus(currentChain);
+              editor?.commands.selectNodeBackward();
+              editor?.commands.deleteNode("image");
               editor
                 ?.chain()
                 .setImage({

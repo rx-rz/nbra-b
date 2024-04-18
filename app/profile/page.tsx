@@ -2,16 +2,24 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useAuthStore } from "../store/auth_store";
 import Link from "next/link";
-import { BookMinus, LucideBook } from "lucide-react";
+import {
+  BookMinus,
+  LucideBook,
+  LucideDelete,
+  LucideEdit,
+  LucideEye,
+  RotateCw,
+} from "lucide-react";
 import { useGetSubscribers } from "@/lib/get-subscribers";
 import moment from "moment";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DialogTrigger } from "@radix-ui/react-dialog";
-import { Button } from "@/components/ui/button";
+import { useGetBlogs } from "@/lib/get-blogs";
 
 export default function Page() {
   const { user } = useAuthStore();
-  const { subscribers } = useGetSubscribers();
+  const { subscribers, subscriberLoading } = useGetSubscribers();
+  const { blogs, blogLoading } = useGetBlogs();
   return (
     <main>
       <div className="mx-auto  w-[95%] max-w-[900px]">
@@ -37,10 +45,8 @@ export default function Page() {
           </CardContent>
           <Card className="h-48 max-w-[95%] mx-auto justify-center flex mb-5 relative ">
             <Dialog>
-              <DialogTrigger className="mt-auto mb-3 ">
-                <Button className="border-accent border hover:bg-accent hover:text-white transition-colors duration-200 font-medium">
-                  View all subscribers
-                </Button>
+              <DialogTrigger className="mt-auto mb-4 border-accent border hover:bg-accent h-fit p-2 rounded-md hover:text-white transition-colors duration-200 font-medium">
+                View all subscribers
               </DialogTrigger>
               <DialogContent>
                 <Card className="mt-4 ">
@@ -62,9 +68,13 @@ export default function Page() {
               </DialogContent>
             </Dialog>
             <div className="text-left absolute -z-10 top-0 left-0 w-full h-full p-5 backdrop-blur-sm">
-              <p className="text-4xl font-bold">
-                {subscribers ? subscribers.length : 0}
-              </p>
+              {subscriberLoading && subscribers.length === 0 ? (
+                <RotateCw className="animate-spin" size={30} />
+              ) : (
+                <p className="text-4xl font-bold">
+                  {subscribers ? subscribers.length : 0}
+                </p>
+              )}
               <p className="text-sm max-w-48 mt-2 text-opacity-80">
                 Total number of people subscribed to the blog
               </p>
@@ -78,6 +88,71 @@ export default function Page() {
                       {subscriber.email}
                     </p>
                     <p>{moment(subscriber.date_subscribed).fromNow()}</p>
+                  </div>
+                ))
+              ) : (
+                <></>
+              )}
+            </div>
+          </Card>
+          <Card className="h-48 max-w-[95%] mx-auto justify-center flex mb-5 relative ">
+            <Dialog>
+              <DialogTrigger className="mt-auto mb-4 border-accent border hover:bg-accent h-fit p-2 rounded-md hover:text-white transition-colors duration-200 font-medium">
+                View all blogs
+              </DialogTrigger>
+              <DialogContent className="max-w-[95%] md:max-w-3xl rounded-md  max-h-[500px] md:max-h-[500px]  overflow-y-scroll">
+                <Card className="mt-4 border-none ">
+                  <CardContent className="mt-5 ">
+                    {blogs ? (
+                      blogs.map((blog) => (
+                        <div
+                          key={blog.id}
+                          className="mb-8 flex justify-between items-baseline "
+                        >
+                          <div className="w-4/5 flex flex-col gap-1">
+                            <p className=" text-lg font-bold font-gambarino text-clip ">
+                              {blog.title}
+                            </p>
+                            <div className="flex gap-2">
+                              <LucideEdit />
+                              <Link href={`/post/${blog.id}`}>
+                                <LucideEye />
+                              </Link>
+                            </div>
+                          </div>
+
+                          <p className="text-sm w-1/5 text-right">
+                            {" "}
+                            {moment
+                              .unix(Number.parseInt(blog.date_created) / 1000)
+                              .format("MMMM D, YYYY")}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <></>
+                    )}
+                  </CardContent>
+                </Card>
+              </DialogContent>
+            </Dialog>
+            <div className="text-left absolute -z-10 top-0 left-0 w-full h-full p-5 backdrop-blur-sm">
+              {blogLoading && blogs.length === 0 ? (
+                <RotateCw className="animate-spin" size={30} />
+              ) : (
+                <p className="text-4xl font-bold">{blogs ? blogs.length : 0}</p>
+              )}
+              <p className="text-sm max-w-48 mt-2 text-opacity-80">
+                Total number of published blogs
+              </p>
+            </div>
+            <div className="right-60 bottom-0 absolute -z-20 overflow-clip max-h-[150px]">
+              {blogs ? (
+                blogs.slice(0, 2).map((blog) => (
+                  <div key={blog.id}>
+                    <p className="lg:text-3xl text-xl font-medium text-clip">
+                      {blog.title}
+                    </p>
                   </div>
                 ))
               ) : (

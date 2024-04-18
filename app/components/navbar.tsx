@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookMinus, HomeIcon, LucideBook, SearchIcon } from "lucide-react";
+import { BookMinus, HomeIcon, LucideBook, LucideEdit, SearchIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useGetBlogs } from "@/lib/get-blogs";
 import Search from "./search";
@@ -19,7 +19,7 @@ const Navbar = () => {
       </Link>
       <div className="flex gap-4">
         <Link href={"/create"} title="Create Blog">
-          <LucideBook />
+          <LucideEdit />
         </Link>
         <Link href={"/drafts"} title="Drafts">
           <BookMinus />

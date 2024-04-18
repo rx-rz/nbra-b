@@ -12,7 +12,15 @@ import { database } from "@/config/firebase-config";
 import { useGetComments } from "@/lib/get-comments";
 import { DialogDescription } from "@radix-ui/react-dialog";
 
-import { addDoc, collection, doc, getDoc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { RotateCw } from "lucide-react";
 import moment from "moment";
 import Image from "next/image";
@@ -105,20 +113,18 @@ export default function Page({ params: { id } }: Params) {
       alert("Please enter a valid email address.");
       return;
     }
-    const ref = doc(database, "subscribers", email);
-    const docSnap = await getDoc(ref);
-
-    if (docSnap.exists()) {
+    const subscriberRef = collection(database, "subscribers");
+    const querySnapshot = await getDocs(
+      query(subscriberRef, where("email", "==", email))
+    );
+    if (!querySnapshot.empty) {
       setIsSubscribed(true);
-      return;
-    }
-    if (!docSnap.exists()) {
-      addDoc(collection(database, "subscribers"), {
+    } else {
+      addDoc(subscriberRef, {
         email,
         date_subscribed: moment.now(),
       }).then(() => {
         setIsSubscribed(true);
-        return;
       });
     }
     setSubscriptionLoading(false);

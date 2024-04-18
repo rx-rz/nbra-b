@@ -13,6 +13,11 @@ export default function RootLayout({
         <Navbar />
         <>{children}</>
       </body>
+      <script
+        defer
+        src="https://analytics.us.umami.is/script.js"
+        data-website-id="649733d0-9231-4701-80e6-b59f51783b5c"
+      ></script>
     </html>
   );
 }

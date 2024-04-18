@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   BookMinus,
   LucideBook,
-  LucideDelete,
   LucideEdit,
   LucideEye,
   RotateCw,
@@ -15,11 +14,43 @@ import moment from "moment";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DialogTrigger } from "@radix-ui/react-dialog";
 import { useGetBlogs } from "@/lib/get-blogs";
+import { useEffect, useState } from "react";
+import { Editor, EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { database } from "@/config/firebase-config";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function Page() {
   const { user } = useAuthStore();
   const { subscribers, subscriberLoading } = useGetSubscribers();
   const { blogs, blogLoading } = useGetBlogs();
+  const [defaultEmailMessage, setDefaultEmailMessage] = useState("");
+
+  useEffect(() => {
+    async function getEmailContentDoc() {
+      const emailContentRef = doc(
+        database,
+        "emailcontent",
+        "EoBZwNKSUVEfUmSA5knC"
+      );
+      const emailContentDoc = await getDoc(emailContentRef);
+      if (emailContentDoc.exists()) {
+        setDefaultEmailMessage(emailContentDoc.data().emailcontent);
+      }
+    }
+    getEmailContentDoc();
+  }, []);
+
+  const editor = useEditor({
+    extensions: [StarterKit],
+    onCreate: ({ editor }) => {
+      editor.commands.setContent(defaultEmailMessage);
+    },
+    onBlur: ({ editor }) => {
+      console.log(editor.getHTML());
+      setDefaultEmailMessage(editor.getHTML());
+    },
+  });
   return (
     <main>
       <div className="mx-auto  w-[95%] max-w-[900px]">
@@ -159,6 +190,19 @@ export default function Page() {
                 <></>
               )}
             </div>
+          </Card>
+          <Card className="flex border-none">
+            <Dialog>
+              <DialogTrigger className="w-fit border p-3 mx-auto">
+                Edit editor content
+              </DialogTrigger>
+              <DialogContent>
+                <EditorContent
+                  editor={editor}
+                  placeholder="Enter email message here: "
+                />
+              </DialogContent>
+            </Dialog>
           </Card>
         </Card>
       </div>

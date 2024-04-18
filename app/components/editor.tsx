@@ -122,7 +122,9 @@ const Editor = () => {
       // Add a placeholder image before the upload starts
       editor
         ?.chain()
-        .insertContent('<img src="https://placehold.co/600x400?text=Loading" class="placeholder"/>')
+        .insertContent(
+          '<img src="https://placehold.co/600x400?text=Loading" class="placeholder"/>'
+        )
         .run();
 
       uploadTask.on(
@@ -198,10 +200,9 @@ const Editor = () => {
         tags: [],
         title: "",
       });
+      await sendEmailToUsers();
       setDraftID("");
-      const url = new URL(location.href);
-      url.searchParams.delete("draft_id");
-      router.push(url.toString());
+
       router.push("/");
     } catch (err) {
       setPublishLoading(false);
@@ -210,6 +211,11 @@ const Editor = () => {
     }
   };
 
+  useEffect(() => {
+    const url = new URL(location.href);
+    url.searchParams.delete("draft_id");
+    router.push(url.toString());
+  }, [router]);
   const handleDraft = async () => {
     setDraftLoading(true);
     if (draftID) {
@@ -282,6 +288,19 @@ const Editor = () => {
         );
       };
     }
+  };
+
+  const sendEmailToUsers = async () => {
+    await fetch("/post", {
+      method: "POST",
+      body: JSON.stringify({
+        subscibers: [
+          "adeleyetemiloluwa.work@gmail.com",
+          "adeleyetemiloluwa674@gmail.com",
+        ],
+        message: `Blog is ready. go read at this link sha.`,
+      }),
+    });
   };
 
   return (

@@ -15,7 +15,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DialogTrigger } from "@radix-ui/react-dialog";
 import { useGetBlogs } from "@/lib/get-blogs";
 import { useEffect, useState } from "react";
-import { Editor, EditorContent, useEditor } from "@tiptap/react";
+import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { database } from "@/config/firebase-config";
 import { doc, getDoc } from "firebase/firestore";
@@ -34,6 +34,7 @@ export default function Page() {
         "EoBZwNKSUVEfUmSA5knC"
       );
       const emailContentDoc = await getDoc(emailContentRef);
+      console.log(emailContentDoc.data());
       if (emailContentDoc.exists()) {
         setDefaultEmailMessage(emailContentDoc.data().emailcontent);
       }
@@ -46,6 +47,7 @@ export default function Page() {
     onCreate: ({ editor }) => {
       editor.commands.setContent(defaultEmailMessage);
     },
+    content: defaultEmailMessage || "",
     onBlur: ({ editor }) => {
       console.log(editor.getHTML());
       setDefaultEmailMessage(editor.getHTML());

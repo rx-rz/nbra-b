@@ -13,12 +13,16 @@ let transporter = nodemailer.createTransport({
 
 export async function POST(req: Request) {
   const { subscribers, message } = await req.json();
-  let info = await transporter.sendMail({
-    from: "roqeebatbolarinwa@gmail.com",
-    to: subscribers,
-    subject: "Hello 👍",
-    text: message,
-  });
-  console.log("Message sent: %s", info.messageId);
-  return NextResponse.json({ info });
+
+  for (const subscriber of subscribers) {
+    const info = await transporter.sendMail({
+      from: "roqeebatbolarinwa@gmail.com", // Your email address
+      to: subscriber, // Recipient's email address
+      subject: "Hello 👍", // Subject line
+      text: message, // Plain text body
+    });
+    console.log(`Message sent to ${subscriber}: %s`, info.messageId);
+  }
+
+  return NextResponse.json({ success: true });
 }

@@ -7,18 +7,27 @@ import {
   LucideBook,
   LucideEdit,
   LucideEye,
+  LucideTrash2,
   RotateCw,
 } from "lucide-react";
 import { useGetSubscribers } from "@/lib/get-subscribers";
 import moment from "moment";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { DialogTrigger } from "@radix-ui/react-dialog";
 import { useGetBlogs } from "@/lib/get-blogs";
 import { useEffect, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { database } from "@/config/firebase-config";
-import { doc, getDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc } from "firebase/firestore";
+import { Button } from "@/components/ui/button";
 
 export default function Page() {
   const { user } = useAuthStore();
@@ -53,6 +62,11 @@ export default function Page() {
       setDefaultEmailMessage(editor.getHTML());
     },
   });
+
+  const handleDeletePost = async (id: string) => {
+    await deleteDoc(doc(database, "blogs", id));
+    location.reload();
+  };
   return (
     <main>
       <div className="mx-auto  w-[95%] max-w-[900px]">
@@ -147,10 +161,43 @@ export default function Page() {
                               {blog.title}
                             </p>
                             <div className="flex gap-2">
-                              <LucideEdit />
                               <Link href={`/post/${blog.id}`}>
                                 <LucideEye />
                               </Link>
+                              <Dialog>
+                                <DialogTrigger
+                                // onClick={() => handleDeletePost(blog.id!)}
+                                >
+                                  <LucideTrash2 />
+                                </DialogTrigger>
+                                <DialogContent className="max-w-[300px]">
+                                  <DialogTitle className="mt-3">
+                                    Are you absolutely sure?
+                                  </DialogTitle>
+                                  <DialogDescription>
+                                    This action cannot be undone. This will
+                                    permanently delete your blog post and remove
+                                    your data from our servers.
+                                  </DialogDescription>
+                                  <DialogFooter className="flex justify-between mt-8">
+                                    <DialogClose
+                                      asChild
+                                      className="mt-2 md:mt-0"
+                                    >
+                                      <Button variant="outline">Cancel</Button>
+                                    </DialogClose>
+                                    <Button
+                                      variant="secondary"
+                                      className="bg-red-500 text-white"
+                                      onClick={() =>
+                                        handleDeletePost(blog.id ? blog.id : "")
+                                      }
+                                    >
+                                      Yes, delete
+                                    </Button>
+                                  </DialogFooter>
+                                </DialogContent>
+                              </Dialog>
                             </div>
                           </div>
 

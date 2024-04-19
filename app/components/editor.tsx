@@ -162,34 +162,36 @@ const Editor = () => {
 
   const publishBlog = async () => {
     try {
-      const blogRef = doc(database, "blogs", draftID);
       setPublishLoading(true);
       const isValid = validateBlogContent(storedBlog);
-      if (isValid.length === 0) {
+      if (isValid === "error") {
         setPublishLoading(false);
+        return;
       }
-      if (draftID.length === 0) {
-        await addDoc(collection(database, "blogs"), {
-          content: editor?.getHTML(),
-          author: "Roqeebat Bolarinwa",
-          date_created: moment.now().toString(),
-          header_image: storedBlog.header_image,
-          is_draft: false,
-          subtitle: storedBlog.subtitle,
-          tags: storedBlog.tags,
-          title: storedBlog.title,
-        });
+
+      const newBlogData = {
+        content: editor?.getHTML(),
+        author: "Roqeebat Bolarinwa",
+        date_created: moment.now().toString(),
+        header_image: storedBlog.header_image,
+        is_draft: false,
+        subtitle: storedBlog.subtitle,
+        tags: storedBlog.tags,
+        title: storedBlog.title,
+      };
+
+      if (draftID.length !== 0) {
+        const blogRef = doc(database, "blogs", draftID);
+        await updateDoc(blogRef, newBlogData);
+        await sendEmailToUsers(draftID);
       } else {
-        await updateDoc(blogRef, {
-          content: editor?.getHTML(),
-          date_created: moment.now().toString(),
-          header_image: storedBlog.header_image,
-          is_draft: false,
-          subtitle: storedBlog.subtitle,
-          tags: storedBlog.tags,
-          title: storedBlog.title,
-        });
+        const blogRef = await addDoc(
+          collection(database, "blogs"),
+          newBlogData
+        );
+        await sendEmailToUsers(blogRef.id);
       }
+
       setStoredBlog({
         content: "",
         author: "Roqeebat Bolarinwa",
@@ -200,9 +202,9 @@ const Editor = () => {
         tags: [],
         title: "",
       });
-      await sendEmailToUsers();
-      setDraftID("");
 
+      setDraftID("");
+      setPublishLoading(false);
       router.push("/");
     } catch (err) {
       setPublishLoading(false);
@@ -290,15 +292,15 @@ const Editor = () => {
     }
   };
 
-  const sendEmailToUsers = async () => {
+  const sendEmailToUsers = async (id: string) => {
     await fetch("/post", {
       method: "POST",
       body: JSON.stringify({
-        subscibers: [
+        subscribers: [
           "adeleyetemiloluwa.work@gmail.com",
           "adeleyetemiloluwa674@gmail.com",
         ],
-        message: `Blog is ready. go read at this link sha.`,
+        message: `<p>Hello. I just published a new blog post!. You can view it <a href="https://nbra-b.vercel.app/post/${id}">here.</a> </p></br>`,
       }),
     });
   };

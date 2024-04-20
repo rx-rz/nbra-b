@@ -5,7 +5,6 @@ import { database } from "../config/firebase-config";
 export const useGetDrafts = () => {
   const [drafts, setDrafts] = useState<BlogContent[]>([]);
   const [draftLoading, setDraftLoading] = useState(false);
-  console.log({ drafts });
   useEffect(() => {
     setDraftLoading(true);
     async function getAllDocs() {

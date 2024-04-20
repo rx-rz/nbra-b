@@ -4,24 +4,20 @@ import { useState } from "react";
 export const TitleEditor = ({
   storedBlog,
   setStoredBlog,
-  setBlog,
-  blog,
 }: CreateBlogComponentProps) => {
   const [titleRows, setTitleRows] = useState(1);
   const [subtitleRows, setSubtitleRows] = useState(1);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (blog && storedBlog) {
+    if (storedBlog) {
       setStoredBlog({ ...storedBlog, title: e.target.value });
-      setBlog({ ...storedBlog, title: e.target.value });
       setTitleRows(Math.max(e.target.value.split("\n").length, 1));
     }
   };
 
   const handleSubtitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (blog && storedBlog) {
+    if (storedBlog) {
       setStoredBlog({ ...storedBlog, subtitle: e.target.value });
-      setBlog({ ...storedBlog, subtitle: e.target.value });
       setSubtitleRows(Math.max(e.target.value.split("\n").length, 1));
     }
   };
@@ -29,18 +25,17 @@ export const TitleEditor = ({
   return (
     <>
       <textarea
-        className="w-full text-center outline-none pt-3 border-none md:text-2xl text-xl lg:text-3xl font-bold focus:outline focus:outline-1 overflow-auto"
-        placeholder="Enter title here...(Max 120 characters)"
-        maxLength={120}
-        defaultValue={blog ? blog.title : ""}
+        className="w-full text-center h-fit outline-none pt-3 resize-none border-none md:text-2xl text-2xl lg:text-3xl font-bold focus:outline focus:outline-1 overflow-auto"
+        placeholder="Enter title here."
+        defaultValue={storedBlog ? storedBlog.title : ""}
         onChange={handleTitleChange}
+
         rows={titleRows}
       />
       <textarea
-        className="w-full outline-none pb-3 text-center border-none md:text-md text-xs lg:text-lg focus:outline focus:outline-1 overflow-auto"
-        placeholder="Enter subtitle here...(Max 200 characters)"
-        maxLength={200}
-        defaultValue={blog ? blog.subtitle : ""}
+        className="w-full outline-none pb-3 h-fit text-center resize-none border-none text-md lg:text-lg focus:outline focus:outline-1 overflow-auto"
+        placeholder="Enter subtitle here"
+        defaultValue={storedBlog ? storedBlog.subtitle : ""}
         onChange={handleSubtitleChange}
         rows={subtitleRows}
       />

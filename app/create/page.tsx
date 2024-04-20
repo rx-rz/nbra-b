@@ -3,10 +3,9 @@ import Editor from "../components/editor";
 import { Suspense } from "react";
 
 import { RotateCw } from "lucide-react";
+import withAuth from "../components/with-auth";
 
-export default function Page() {
-
-
+function Page() {
   return (
     <Suspense
       fallback={
@@ -21,3 +20,5 @@ export default function Page() {
     </Suspense>
   );
 }
+
+export default withAuth(Page)

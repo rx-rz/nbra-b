@@ -3,7 +3,6 @@ import { DialogClose } from "@/components/ui/dialog";
 import { LucideAnnoyed } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 export default function Search({
@@ -13,7 +12,7 @@ export default function Search({
   blogs: BlogContent[];
   tag?: string;
 }) {
-  const router = useRouter();
+
   const [criteriaMeetingBlogs, setCriteriaMeetingBlogs] = useState(blogs);
   const [inputText, setInputText] = useState(tag ? tag : "");
 

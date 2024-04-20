@@ -11,6 +11,8 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { LucideLogIn } from "lucide-react";
 import { useAuthStore } from "../store/auth_store";
 import { auth } from "@/config/firebase-config";
+import { useEffect } from "react";
+import { useBlogStore } from "../store/blog_store";
 
 export default function Page() {
   const googleProvider = new GoogleAuthProvider();
@@ -30,6 +32,12 @@ export default function Page() {
       console.error(err);
     }
   };
+  const { setDraftID } = useBlogStore();
+
+  useEffect(() => {
+    setDraftID("");
+  }, [setDraftID]);
+
   return (
     <Card className="mx-auto max-w-sm mt-16">
       <CardHeader>

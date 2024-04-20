@@ -30,28 +30,33 @@ import moment from "moment";
 import { toast } from "sonner";
 import { Toaster } from "./ui/sonner";
 import CharacterCount from "@tiptap/extension-character-count";
-import { Loader2, RotateCw, UploadCloud } from "lucide-react";
+import {
+  Loader2,
+  LucideTag,
+  RotateCw,
+  Upload,
+  UploadCloud,
+} from "lucide-react";
 import { useGetDraft } from "@/lib/get-draft";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { DialogTrigger } from "@radix-ui/react-dialog";
 
 const Editor = () => {
-  const searchParams = useSearchParams();
-  const draft_id = searchParams.get("draft_id");
-  const { draft } = useGetDraft({ id: draft_id });
-
   const {
     blog: storedBlog,
     setBlog: setStoredBlog,
     draftID,
     setDraftID,
   } = useBlogStore();
-  const [blog, setBlog] = useState<BlogContent>();
+  const { draft } = useGetDraft({ id: draftID });
+
   const [publishLoading, setPublishLoading] = useState(false);
   const [draftLoading, setDraftLoading] = useState(false);
   const [headerUploadPercentage, setHeaderUploadPercentage] = useState(0);
-  const [headerImageText, setHeaderImageText] = useState(
-    "Please upload an image."
-  );
+  const [defaultEmailMessage, setDefaultEmailMessage] = useState("");
+
   const validateBlogContent = (blog: BlogContent | undefined) => {
     if (blog) {
       if (blog.content.length < 100) {
@@ -76,7 +81,7 @@ const Editor = () => {
 
   const editor = useEditor({
     extensions: [StarterKit, TiptapImage, CharacterCount],
-    content: blog ? blog.content : "",
+    content: storedBlog ? storedBlog.content : "",
     onBlur: ({ editor }) => {
       setStoredBlog({ ...storedBlog, content: editor.getHTML() });
       handleDraft();
@@ -87,16 +92,37 @@ const Editor = () => {
   });
 
   useEffect(() => {
-    if (draft) {
-      setBlog(draft);
-      setStoredBlog(draft);
-      editor?.commands.setContent(draft.content);
+    async function getEmailContentDoc() {
+      const emailContentRef = doc(
+        database,
+        "emailcontent",
+        "EoBZwNKSUVEfUmSA5knC"
+      );
+      const emailContentDoc = await getDoc(emailContentRef);
+      if (emailContentDoc.exists()) {
+        setDefaultEmailMessage(emailContentDoc.data()?.emailcontent || "");
+      }
     }
-  }, [draft, setStoredBlog, editor]);
+    getEmailContentDoc();
+  }, []);
 
   useEffect(() => {
-    setBlog(storedBlog);
-  }, [storedBlog, editor]);
+    if (draft) {
+      setStoredBlog(draft);
+      editor?.commands.setContent(draft.content);
+    } else {
+      setStoredBlog({
+        content: "",
+        author: "Roqeebat Bolarinwa",
+        date_created: moment.now().toString(),
+        header_image: "",
+        is_draft: true,
+        subtitle: "",
+        tags: [],
+        title: "",
+      });
+    }
+  }, [draft, setStoredBlog, editor]);
 
   const isActive =
     "bg-black [&>img]:invert rounded-full border border-black p-2 md:w-[30px] md:h-[30px] w-fit h-fit flex items-center justify-center";
@@ -115,11 +141,7 @@ const Editor = () => {
       formData.append("image", file);
       const storageRef = ref(storage, `/images/${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
-
-      // Get the current editor state
       const currentChain = editor?.state.selection.anchor;
-
-      // Add a placeholder image before the upload starts
       editor
         ?.chain()
         .insertContent(
@@ -129,9 +151,7 @@ const Editor = () => {
 
       uploadTask.on(
         "state_changed",
-        (snapshot) => {
-          // You can add progress tracking here if needed
-        },
+        (snapshot) => {},
         (error) => {
           console.log(error);
         },
@@ -202,9 +222,10 @@ const Editor = () => {
         tags: [],
         title: "",
       });
-
+      console.log(draftID);
       setDraftID("");
       setPublishLoading(false);
+
       router.push("/");
     } catch (err) {
       setPublishLoading(false);
@@ -213,47 +234,43 @@ const Editor = () => {
     }
   };
 
-  useEffect(() => {
-    const url = new URL(location.href);
-    url.searchParams.delete("draft_id");
-    router.push(url.toString());
-  }, [router]);
   const handleDraft = async () => {
     setDraftLoading(true);
     if (draftID) {
       const draftRef = doc(database, "blogs", draftID);
       const draftDoc = await getDoc(draftRef);
-      if (draftDoc.exists() && blog) {
+      if (draftDoc.exists() && storedBlog) {
         await updateDoc(draftRef, {
           content: editor?.getHTML(),
           date_created: moment.now().toString(),
-          header_image: blog.header_image,
+          header_image: storedBlog.header_image,
           is_draft: true,
-          subtitle: blog.subtitle,
-          tags: blog.tags,
-          title: blog.title,
+          subtitle: storedBlog.subtitle,
+          tags: storedBlog.tags,
+          title: storedBlog.title,
         });
       }
     } else {
-      if (blog)
+      if (storedBlog)
         await addDoc(collection(database, "blogs"), {
           content: editor?.getHTML(),
           author: "Roqeebat Bolarinwa",
           date_created: moment.now().toString(),
-          header_image: blog.header_image,
+          header_image: storedBlog.header_image,
           is_draft: true,
-          subtitle: blog.subtitle,
-          tags: blog.tags,
-          title: blog.title,
+          subtitle: storedBlog.subtitle,
+          tags: storedBlog.tags,
+          title: storedBlog.title,
         }).then((value) => {
           setDraftID(value.id);
         });
     }
+    console.log(draftID);
     setDraftLoading(false);
   };
 
   const uploadHeaderImage = () => {
-    if (blog) {
+    if (storedBlog) {
       const input = document.createElement("input");
       input.setAttribute("type", "file");
       input.setAttribute("accept", "image/*");
@@ -271,7 +288,6 @@ const Editor = () => {
               (snapshot.bytesTransferred / snapshot.totalBytes) * 100
             );
             setHeaderUploadPercentage(percentage);
-            setHeaderImageText(percentage.toString());
           },
           (error) => {
             toast("An error occured.", {
@@ -283,7 +299,6 @@ const Editor = () => {
             getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
               setHeaderUploadPercentage(0);
               setStoredBlog({ ...storedBlog, header_image: downloadUrl });
-              setBlog({ ...storedBlog, header_image: downloadUrl });
               return "";
             });
           }
@@ -300,7 +315,7 @@ const Editor = () => {
           "adeleyetemiloluwa.work@gmail.com",
           "adeleyetemiloluwa674@gmail.com",
         ],
-        message: `<p>Hello. I just published a new blog post!. You can view it <a href="https://nbra-b.vercel.app/post/${id}">here.</a> </p></br>`,
+        message: `<b>${defaultEmailMessage}. You can view it <a href="https://nbra-b.vercel.app/post/${id}">here.</a> </p></br>`,
       }),
     });
   };
@@ -317,53 +332,67 @@ const Editor = () => {
         <>
           <Toaster />
         </>
-        <div className="flex relative mb-16 ml-3 top-1 right-1 md:right-3 ">
-          <div className="absolute top-3 md:right-3 right-0 flex">
-            <button
-              className="cursor-pointer bg-white border text-sm  rounded-md p-1 px-3"
-              onClick={() => handleDraft()}
-              disabled={draftLoading || publishLoading}
-            >
-              {draftLoading ? (
-                <Loader2 size={20} className="animate-spin mx-auto" />
-              ) : (
-                "Save as draft"
-              )}
-            </button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <button
-                  className="cursor-pointer bg-black text-white border-black w-24 border text-sm rounded-md p-1 px-3 ml-4"
-                  disabled={draftLoading || publishLoading}
-                >
-                  {publishLoading ? (
-                    <Loader2 size={20} className="animate-spin mx-auto" />
-                  ) : (
-                    "Publish"
-                  )}
-                </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Publish blog?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. Please ensure you go through
-                    your blog post for any necessary corrections to be made.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel className="bg-red-500 text-white hover:bg-red-500">
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    className="bg-accent text-white"
-                    onClick={() => publishBlog()}
+        <div className="flex relative mb-4 ml-3 top-1 right-1 md:right-3 ">
+          <div className="w-full justify-between mt-2 md:ml-3 right-0 flex gap-3 items-center">
+            <Dialog>
+              <DialogTrigger className="cursor-pointer flex gap-2 items-center bg-white border text-sm h-auto  rounded-md p-2 px-3">
+                <LucideTag size={15} />
+                <p>Manage Tags</p>
+              </DialogTrigger>
+              <DialogContent className="max-w-[500px] w-[95%] rounded-lg ">
+                <TagsEditor
+                  setStoredBlog={setStoredBlog}
+                  storedBlog={storedBlog}
+                />
+              </DialogContent>
+            </Dialog>
+            <div className="flex gap-1">
+              <button
+                className="cursor-pointer bg-white border text-sm  rounded-md p-2 px-3"
+                onClick={() => handleDraft()}
+                disabled={draftLoading || publishLoading}
+              >
+                {draftLoading ? (
+                  <Loader2 size={20} className="animate-spin mx-auto" />
+                ) : (
+                  "Save as draft"
+                )}
+              </button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button
+                    className="cursor-pointer bg-black text-white border-black w-24 border text-sm rounded-md p-2 px-3"
+                    disabled={draftLoading || publishLoading}
                   >
-                    Continue
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                    {publishLoading ? (
+                      <Loader2 size={20} className="animate-spin mx-auto" />
+                    ) : (
+                      "Publish"
+                    )}
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Publish blog?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. Please ensure you go through
+                      your blog post for any necessary corrections to be made.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="border-red-500 text-red-500 hover:bg-white">
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-accent text-white"
+                      onClick={() => publishBlog()}
+                    >
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
         </div>
         <>
@@ -477,23 +506,6 @@ const Editor = () => {
                   alt="Heading Two"
                 />
               </button>
-              <button
-                onClick={() =>
-                  editor.chain().focus().toggleHeading({ level: 3 }).run()
-                }
-                className={
-                  editor.isActive("heading", { level: 3 })
-                    ? isActive
-                    : isNotActive
-                }
-              >
-                <Image
-                  width={15}
-                  height={15}
-                  src={"/h3.svg"}
-                  alt="Heading Three"
-                />
-              </button>
             </BubbleMenu>
           )}
           {editor && (
@@ -605,23 +617,7 @@ const Editor = () => {
                   alt="Heading Two"
                 />
               </button>
-              <button
-                onClick={() =>
-                  editor.chain().focus().toggleHeading({ level: 3 }).run()
-                }
-                className={
-                  editor.isActive("heading", { level: 3 })
-                    ? isActive
-                    : isNotActive
-                }
-              >
-                <Image
-                  width={15}
-                  height={15}
-                  src={"/h3.svg"}
-                  alt="Heading Three"
-                />
-              </button>
+
               <button
                 type="button"
                 onClick={imageUpload}
@@ -636,56 +632,53 @@ const Editor = () => {
               </button>
             </FloatingMenu>
           )}
-          <button
-            className="cursor-pointer font-bold text-sm w-full text-opacity-70"
-            onClick={() => uploadHeaderImage()}
-          >
-            {blog?.header_image ? (
-              <div className="relative max-h-[600px] border-2  h-full">
-                {headerUploadPercentage > 0 ? (
-                  <p className="absolute text-3xl font-bold top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    {headerUploadPercentage} %
-                  </p>
-                ) : (
-                  <></>
-                )}
+          <div className="flex">
+            <button
+              className="cursor-pointer border font-bold text-sm w-fit mx-auto text-opacity-70 rounded-md"
+              onClick={() => uploadHeaderImage()}
+            >
+              {storedBlog?.header_image ? (
+                <div className="relative max-h-[600px] min-h-[200px] border-2  h-full">
+                  {headerUploadPercentage > 0 ? (
+                    <p className="absolute text-3xl py-14 z-10 font-bold top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                      {headerUploadPercentage} %
+                    </p>
+                  ) : (
+                    <></>
+                  )}
 
-                <Image
-                  src={blog.header_image}
-                  alt="Header Image"
-                  width={1000}
-                  height={500}
-                  className="object-cover w-full max-h-[600px]"
-                />
-              </div>
-            ) : (
-              <div className="w-screen h-[600px] font-switzer  border-dotted border-2 flex items-center justify-center text-opacity-65">
-                {headerUploadPercentage > 0 ? (
-                  <p className="absolute text-3xl font-bold top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    {headerUploadPercentage} %
-                  </p>
-                ) : (
-                  <div className="flex flex-col gap-4">
-                    <UploadCloud size={200} />
-                    <p className="opacity-75">Please upload an image.</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </button>
-          <div className="mx-4">
+                  <Image
+                    src={storedBlog.header_image}
+                    alt="Header Image"
+                    width={1000}
+                    height={500}
+                    className="object-cover  max-h-[600px]"
+                  />
+                </div>
+              ) : (
+                <div className="w-screen max-h-[600px] min-h-[200px] flex items-center justify-center text-opacity-65">
+                  {headerUploadPercentage > 0 ? (
+                    <p className="absolute z-10 text-3xl py-14 font-bold top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                      {headerUploadPercentage} %
+                    </p>
+                  ) : (
+                    <div className="flex flex-col gap-4 items-center p-3 ">
+                      <Upload size={150} />
+                      <p className="opacity-75">
+                        Please upload a header image.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </button>
+          </div>
+          <div className=" max-w-[95%] mx-auto">
             <TitleEditor
-              blog={blog}
               setStoredBlog={setStoredBlog}
               storedBlog={storedBlog}
-              setBlog={setBlog}
             />
-            <TagsEditor
-              blog={blog}
-              setStoredBlog={setStoredBlog}
-              storedBlog={storedBlog}
-              setBlog={setBlog}
-            />
+
             <div className="max-w-[66ch] mx-auto">
               <EditorContent
                 editor={editor}

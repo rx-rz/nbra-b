@@ -11,8 +11,6 @@ type BlogContent = {
 };
 
 type CreateBlogComponentProps = {
-  blog: BlogContent | undefined;
-  setBlog: Dispatch<SetStateAction<BlogContent | undefined>>;
   setStoredBlog: (blog: BlogContent) => void;
-  storedBlog: BlogContent | undefined;
+  storedBlog: BlogContent;
 };

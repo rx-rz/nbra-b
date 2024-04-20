@@ -1,5 +1,5 @@
 @import url("https://api.fontshare.com/v2/css?f[]=gambarino@400&display=swap");
-@import url("https://api.fontshare.com/v2/css?f[]=general-sans@300,400&display=swap");
+@import url("https://api.fontshare.com/v2/css?f[]=satoshi@300,400&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -25,29 +25,6 @@
     padding-block: 1rem !important;
   }
   .ProseMirror h1 {
-    font-size: 19px;
-    font-weight: bold;
-    margin-block-start: 1rem;
-    margin-block-end: 1rem;
-  }
-  .ProseMirror h2 {
-    font-size: 16px;
-    font-weight: bold;
-    margin-block: 1rem;
-  }
-
-  .ProseMirror p {
-    font-size: 14px;
-    margin-block: 1em;
-  }
-}
-
-/* For medium screen sizes (e.g., tablets) */
-@media screen and (min-width: 641px) {
-  .ProseMirror img {
-    padding-block: 0.7rem !important;
-  }
-  .ProseMirror h1 {
     font-size: 21px;
     font-weight: bold;
     margin-block-start: 1rem;
@@ -61,6 +38,29 @@
 
   .ProseMirror p {
     font-size: 16px;
+    margin-block: 1em;
+  }
+}
+
+/* For medium screen sizes (e.g., tablets) */
+@media screen and (min-width: 641px) {
+  .ProseMirror img {
+    padding-block: 0.7rem !important;
+  }
+  .ProseMirror h1 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-block-start: 1rem;
+    margin-block-end: 1rem;
+  }
+  .ProseMirror h2 {
+    font-size: 21px;
+    font-weight: bold;
+    margin-block: 1rem;
+  }
+
+  .ProseMirror p {
+    font-size: 19px;
     margin-block: 1em;
   }
 
@@ -95,7 +95,7 @@
 }
 
 * {
-  font-family: "General Sans", sans-serif;
+  font-family: "Satoshi", sans-serif;
 }
 
 blockquote {

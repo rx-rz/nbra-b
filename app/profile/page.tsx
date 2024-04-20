@@ -26,14 +26,23 @@ import { useEffect, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { database } from "@/config/firebase-config";
-import { deleteDoc, doc, getDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
+import { useBlogStore } from "../store/blog_store";
+import withAuth from "../components/with-auth";
 
-export default function Page() {
+function Page() {
   const { user } = useAuthStore();
   const { subscribers, subscriberLoading } = useGetSubscribers();
   const { blogs, blogLoading } = useGetBlogs();
   const [defaultEmailMessage, setDefaultEmailMessage] = useState("");
+  const { setDraftID } = useBlogStore();
+  const [updateDefaultEmailIsLoading, setUpdateDefaultEmailIsLoading] =
+    useState(false);
+
+  useEffect(() => {
+    setDraftID("");
+  }, [setDraftID]);
 
   useEffect(() => {
     async function getEmailContentDoc() {
@@ -43,30 +52,32 @@ export default function Page() {
         "EoBZwNKSUVEfUmSA5knC"
       );
       const emailContentDoc = await getDoc(emailContentRef);
-      console.log(emailContentDoc.data());
       if (emailContentDoc.exists()) {
-        setDefaultEmailMessage(emailContentDoc.data().emailcontent);
+        setDefaultEmailMessage(emailContentDoc.data()?.emailcontent || "");
       }
     }
     getEmailContentDoc();
   }, []);
 
-  const editor = useEditor({
-    extensions: [StarterKit],
-    onCreate: ({ editor }) => {
-      editor.commands.setContent(defaultEmailMessage);
-    },
-    content: defaultEmailMessage || "",
-    onBlur: ({ editor }) => {
-      console.log(editor.getHTML());
-      setDefaultEmailMessage(editor.getHTML());
-    },
-  });
+  const updateEmailContent = async () => {
+    setUpdateDefaultEmailIsLoading(true);
+    console.log(defaultEmailMessage);
+    const emailContentRef = doc(
+      database,
+      "emailcontent",
+      "EoBZwNKSUVEfUmSA5knC"
+    );
+    await updateDoc(emailContentRef, {
+      emailcontent: defaultEmailMessage,
+    });
+    setUpdateDefaultEmailIsLoading(false);
+  };
 
   const handleDeletePost = async (id: string) => {
     await deleteDoc(doc(database, "blogs", id));
     location.reload();
   };
+
   return (
     <main>
       <div className="mx-auto  w-[95%] max-w-[900px]">
@@ -242,14 +253,33 @@ export default function Page() {
           </Card>
           <Card className="flex border-none">
             <Dialog>
-              <DialogTrigger className="w-fit border p-3 mx-auto">
-                Edit editor content
+              <DialogTrigger className="w-fit border p-3 rounded-md mb-2 mx-auto">
+                Edit email content
               </DialogTrigger>
               <DialogContent>
-                <EditorContent
-                  editor={editor}
-                  placeholder="Enter email message here: "
+                <p className="mt-6 mb-0 text-center text-sm">
+                  (NOTE): Keep the email simple, describing whatever it is your
+                  new blog post entails. There will be a link to the blog post
+                  inserted at the bottom of your message, so you should probably
+                  end your custom message with &apos;Here is the link to my blog
+                  post&apos;
+                </p>
+                <textarea
+                  className="border resize-none h-48 p-4 border-accent "
+                  defaultValue={defaultEmailMessage}
+                  onChange={(e) => setDefaultEmailMessage(e.target.value)}
                 />
+                <Button
+                  className=" p-3 py-2 bg-accent text-white  rounded-md"
+                  onClick={() => updateEmailContent()}
+                  disabled={updateDefaultEmailIsLoading}
+                >
+                  {updateDefaultEmailIsLoading ? (
+                    <RotateCw className="animate-spin" />
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
               </DialogContent>
             </Dialog>
           </Card>
@@ -258,3 +288,4 @@ export default function Page() {
     </main>
   );
 }
+export default withAuth(Page);

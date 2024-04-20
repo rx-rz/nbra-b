@@ -1,5 +1,6 @@
 "use client";
 import { Progress } from "@/app/components/ui/progress";
+import { useBlogStore } from "@/app/store/blog_store";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -35,6 +36,7 @@ type Params = {
 export default function Page({ params: { id } }: Params) {
   const [blog, setBlog] = useState<BlogContent>();
   const proseMirrorRef = useRef<HTMLDivElement | null>(null);
+  const { setDraftID } = useBlogStore();
   const [comment, setComment] = useState("");
   const [name, setName] = useState("");
   const [progress, setProgress] = useState(0);
@@ -43,6 +45,10 @@ export default function Page({ params: { id } }: Params) {
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
+
+  useEffect(() => {
+    setDraftID("");
+  }, [setDraftID]);
 
   useEffect(() => {
     const scrollHandler = () => {
@@ -135,6 +141,9 @@ export default function Page({ params: { id } }: Params) {
   if (blog) {
     return (
       <>
+        <div className="sticky top-11  bg-white">
+          <Progress value={progress} />
+        </div>
         <Image
           src={blog.header_image}
           alt="Header Image"
@@ -145,22 +154,10 @@ export default function Page({ params: { id } }: Params) {
         />
         <div className=" mt-4 ">
           <div className="mx-4 mt-4 text-center">
-            <p className="mt-2">
-              [
-              {blog.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="mx-1 text-xs hover:underline underline-offset-2 cursor-pointer"
-                >
-                  {tag}
-                </span>
-              ))}
-              ]
-            </p>
             <h1 className="xl:text-5xl lg:text-4xl text-3xl pt-4 pb-1 font-bold  font-gambarino">
               {blog.title}
             </h1>
-            <p className="text-sm md:text-base">{blog.subtitle}</p>
+            <p className="text-sm md:text-base max-w-xl mx-auto font-bold text-opacity-75 opacity-75 mt-4">{blog.subtitle}</p>
 
             <p className="text-xs opacity-75 my-2">
               Published on{" "}
@@ -169,19 +166,17 @@ export default function Page({ params: { id } }: Params) {
                 .format("MMMM D, YYYY")}
             </p>
           </div>
-          <div className="sticky top-0  bg-white">
-            <Progress value={progress} />
-          </div>
+
           <div className="w-[95%]  md:pt-10  max-w-[66ch]  mx-auto font-switzer">
             <div
-              className=" md:mt-10 mt-6 w-fit  text- font-switzer ProseMirror "
+              className=" md:mt-10 mt-6 w-fit  text- font-switzer ProseMirror text-justify"
               ref={proseMirrorRef}
               dangerouslySetInnerHTML={{ __html: blog.content }}
             ></div>
             <div className="w-fit mx-auto">
               <Dialog>
                 <DialogTrigger>
-                  <Button className="mx-auto bg-accent md:text-base text-xs md:p-4 p-2 text-white mb-8">
+                  <Button className="mx-auto bg-accent md:text-sm text-xs md:p-3 p-2 text-white mb-8">
                     Subscribe to blog
                   </Button>
                 </DialogTrigger>
@@ -225,11 +220,10 @@ export default function Page({ params: { id } }: Params) {
 
             {comments ? (
               <>
-                <h1 className="md:text-2xl text-xl font-bold">Comments</h1>
                 {comments.map((comment) => (
                   <div
                     key={comment.id}
-                    className="py-5 border-b last-of-type:border-none"
+                    className="pb-5 border-b last-of-type:border-none"
                   >
                     <div className="flex gap-2 items-center">
                       <p className="text-sm font-bold opacity-90">

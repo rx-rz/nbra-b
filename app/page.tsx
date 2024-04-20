@@ -1,5 +1,4 @@
 "use client";
-
 import { useGetBlogs } from "@/lib/get-blogs";
 import {
   LucideFileWarning,
@@ -12,9 +11,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import Search from "./components/search";
+import { useBlogStore } from "./store/blog_store";
+import { useEffect } from "react";
 
 export default function Home() {
   const { blogs, blogError } = useGetBlogs();
+  const { setDraftID } = useBlogStore();
+
+  useEffect(() => {
+    setDraftID("");
+  }, [setDraftID]);
+
   return (
     <main className="p-3">
       {blogError && !blogs && (
@@ -32,7 +39,7 @@ export default function Home() {
               <div className="md:block hidden">
                 <Image
                   alt={blogs[0].title}
-                  className="w-full h-[600px] object-cover mt-8 border-2 border-accent"
+                  className="w-full h-[600px] object-cover mt-8 border- border-accent"
                   width={1000}
                   height={500}
                   src={blogs[0].header_image}
@@ -81,7 +88,7 @@ export default function Home() {
               blogs.map((blog) => (
                 <div
                   key={blog.id}
-                  className="mb- flex flex-col justify-between border border-accent roundedmd p-5"
+                  className="mb- flex flex-col justify-between border rounded-md border-accent roundedmd p-5"
                 >
                   <div>
                     <div>

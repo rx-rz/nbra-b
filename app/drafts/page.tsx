@@ -16,9 +16,12 @@ import { LucideAnnoyed, RotateCw } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { Suspense } from "react";
+import { useBlogStore } from "../store/blog_store";
+import withAuth from "../components/with-auth";
 
-export default function Page() {
+function Page() {
   const { drafts } = useGetDrafts();
+  const { setDraftID } = useBlogStore();
   const handleDeleteDraft = async (draftId: string) => {
     await deleteDoc(doc(database, "blogs", draftId));
     location.reload();
@@ -60,7 +63,10 @@ export default function Page() {
                   </p>
                   <div className="flex gap-2">
                     <Link
-                      href={`/create?draft_id=${draft.id}`}
+                      href={`/create`}
+                      onClick={() => {
+                        setDraftID(draft.id ? draft.id : "");
+                      }}
                       className="bg-black text-white px-3 py-2 text-xs rounded-3xl"
                     >
                       Edit Draft
@@ -120,3 +126,5 @@ export default function Page() {
     </Suspense>
   );
 }
+
+export default withAuth(Page);
